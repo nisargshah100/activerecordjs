@@ -72,9 +72,9 @@ class User extends ARJS.Model
     @update_attributes({ token: ARJS.UUID() })
   
   # has to be below the method declaration since JS can't find it otherwise
-  afterSave: 'generateToken'
+  @afterSave: 'generateToken'
   
   # You can also specify function with the hooks
-  beforeSave ->
+  @beforeSave ->
     console.log('hello world')
 ```
