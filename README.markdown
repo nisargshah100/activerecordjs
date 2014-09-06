@@ -79,9 +79,9 @@ class User extends ARJS.Model
     console.log('hello world')
 ```
 
-###### Warning about hooks
+###### Infinite loop with hooks
 
-There is a chance to get into an infinite loop with hooks. Lets take the above example. After the model is saved, we call update attributes to save token. This update attributes does an update and so will call beforeUpdate & afterUpdate hooks. In that hook, if you were to save / update again, you would have an infinite loop. 
+There is a chance to get into an infinite loop with hooks. Lets take the above example. After the model is saved, we call update attributes to save token. This update attributes does an update and so will call beforeUpdate & afterUpdate hooks. In that hook, if you were to update again, you would have an infinite loop. 
 
 So how you get past this? You can update / save by disabling hooks
 
