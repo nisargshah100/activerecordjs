@@ -17,7 +17,7 @@ ActiveRecordJS takes up 3 global namespaces. The three namespaces are SQL, Knex 
 
 ```
 class User extends ARJS.Model
-  @setup = 'users'  # first argument is the table name
+  @setup 'users'  # first argument is the table name
   @schema (t) ->
     t.string('email')
     t.string('password')
