@@ -14,6 +14,8 @@
 //= require sql
 //= require knex
 //= require activerecordjs/arjs
+//= require activerecordjs/module
+//= require activerecordjs/hooks
 //= require activerecordjs/model
 
 window.ARJS = {}

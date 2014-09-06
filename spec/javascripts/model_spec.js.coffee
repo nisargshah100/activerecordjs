@@ -138,20 +138,48 @@ describe 'Model', ->
         boo.save()
         expect(boo.token).not.toEqual(undefined)
 
+    it 'before create', ->
+      x = 0
+      Boo.beforeCreate -> x += 1
+      b = new Boo(name: 'apples')
+      expect(x).toBe(0)
+      b.save()
+      expect(x).toBe(1)
+
+    it 'after create', ->
+      x = 0
+      Boo.afterCreate -> x += 1
+      b = new Boo(name: 'apples')
+      expect(x).toBe(0)
+      b.save()
+      expect(x).toBe(1)
+      b.a = 2
+      b.save()
+      expect(x).toBe(1)
+
     it 'after initialize gets called', ->
       x = 0
       Boo.afterInitialize -> x += 1
-      new Boo(a: 1)
+      new Boo(name: 'apples')
       expect(x).toBe(1)
 
     it 'before update gets called', ->
       x = 0
       Boo.beforeUpdate -> x += 1
-      f = new Boo(a: 1)
+      f = new Boo(name: 'apples')
       f.save()
       expect(x).toBe(0)
-      f.a = 2
+      f.name = 'apples3'
       f.save()
       expect(x).toBe(1)
-      f.update_attributes(a: 10, b: 3)
+      f.update_attributes(name: 'apple2')
       expect(x).toBe(2)
+
+    it 'after update gets called', ->
+      x = 0
+      Boo.afterUpdate -> x += 1
+      f = new Boo(name: 'apples')
+      f.save()
+      expect(x).toBe(0)
+      f.update_attributes(name: 'apples2')
+      expect(x).toBe(1)

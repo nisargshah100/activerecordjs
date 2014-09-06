@@ -1,12 +1,14 @@
-class Model
+class Model extends ARJS.Module
   @tableName = null
   @exec = ARJS.exec # convience method
+  @extend(ARJS.Hooks.classMethods)
+  @include(ARJS.Hooks.instanceMethods)
 
   # instance
 
   constructor: (attrs) ->
     @__id = ARJS.UUID() # is a unique id to find record from sql (internal use only) - auto added to schema
-    @_define(@_attrsInSchema(attrs))
+    @_define(attrs)
     @_lastSaved = null
     @_callAllHooks('afterInitialize')
 
@@ -23,21 +25,16 @@ class Model
     a
 
   save: (options = {}) ->
-    @_callAllHooks('beforeSave') unless options.runHooks == false
     if @isNew()
       res = @_create(options)
     else
       res = @_update(options)
-    @_callAllHooks('afterSave') unless options.runHooks == false
     res
 
   update_attributes: (attrs, options = {}) ->
-    @_callAllHooks('beforeSave') unless options.runHooks == false
-    @[k] = v for k, v of attrs
-    res = @_update(options)
-    @_callAllHooks('afterSave') unless options.runHooks == false
-    res
-
+    @_define(attrs)
+    @_update(options)
+    
 
   # refresh the values & also sets the last saved hash since its straight from the database!
   _refresh: ->
@@ -48,30 +45,34 @@ class Model
     @_lastSaved = hash
 
   _create: (options) ->
-    @_callAllHooks('afterCreate') unless options.runHooks == false
+    @_callAllHooks('beforeSave', options)
+    @_callAllHooks('beforeCreate', options)
     a = @attrs()
     a['__id'] = @__id
     ARJS.exec(@_knex().insert(a).toString())
     @_refresh()
-    @_callAllHooks('beforeCreate') unless options.runHooks == false
+    @_callAllHooks('afterCreate', options)
+    @_callAllHooks('afterSave', options)
     true
 
   _update: (options) ->
-    @_callAllHooks('beforeUpdate') unless options.runHooks == false
     da = @_dirtyAttributes()
     return if da.length == 0
+    @_callAllHooks('beforeSave', options)
+    @_callAllHooks('beforeUpdate', options)
     changedHash = {}
     changedHash[k] = @[k] for k in da
     q = @_knex().where('__id', '=', @__id).update(changedHash).toString()
     ARJS.exec(q)
     @_refresh()
-    @_callAllHooks('afterUpdate') unless options.runHooks == false
+    @_callAllHooks('afterUpdate', options)
+    @_callAllHooks('afterSave', options)
     true
 
 
   _define: (attrs) ->
-    for k, v of attrs
-      @[k] = v
+    x = @_attrsInSchema(attrs)
+    @[k] = v for k, v of x
 
   # verifies the attributes are in schema
   _attrsInSchema: (attrs) ->
@@ -80,9 +81,6 @@ class Model
       if k in @.constructor.keys
         vAttrs[k] = v
     vAttrs
-
-  _callAllHooks: (name) ->
-    cb.call(@) for cb in @.constructor.hooks[name]
 
   # checks if there are any changes between last saved & current object.
   # returns keys for changed attributes
@@ -104,20 +102,6 @@ class Model
     @tableName = tableName
     @_setupHooks()
 
-  # create all the hook methods
-
-  @beforeSave = (name_or_cb) ->
-    @hooks['beforeSave'].push(@_getHookCallback(name_or_cb))
-
-  @afterSave = (name_or_cb) ->
-    @hooks['afterSave'].push(@_getHookCallback(name_or_cb))
-
-  @afterInitialize = (name_or_cb) ->
-    @hooks['afterInitialize'].push(@_getHookCallback(name_or_cb))
-
-  @beforeUpdate = (name_or_cb) ->
-    @hooks['beforeUpdate'].push(@_getHookCallback(name_or_cb))
-
   @schema = (cb) ->
     ARJS.setupTable @tableName, (t) ->
       cb(t)
@@ -136,24 +120,5 @@ class Model
   @isTableCreated = ->
     result = @exec("PRAGMA table_info(#{@tableName})")
     result.length > 0
-
-  @_getHookCallback: (name) ->
-    if typeof(name) == 'string'
-      cb = @[name]
-      throw new Error("unable to find method (hook): #{name}, make sure the method is above hook otherwise js wont be able to find it") if !cb?
-    else
-      cb = name
-    cb
-
-  @_setupHooks = ->
-    @hooks = {
-      'beforeSave': [],
-      'afterSave': [],
-      'beforeCreate': [],
-      'afterCreate': [],
-      'beforeUpdate': [],
-      'afterUpdate': [],
-      'afterInitialize': []
-    }
 
 window.ARJS.Model = Model
