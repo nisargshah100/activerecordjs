@@ -6,6 +6,10 @@ A Javascript implementation similar to active record that runs completely in mem
 
 ##### Written in Coffeescript & all examples in coffeescript
 
+### Namespace
+
+ActiveRecordJS takes up 3 global namespaces. The three namespaces are SQL, Knex & ARJS. 
+
 -------------
 
 
