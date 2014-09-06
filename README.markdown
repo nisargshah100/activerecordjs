@@ -24,7 +24,7 @@ class User extends ARJS.Model
     t.integer('age')
 ```
 
-Thats it. The database and its underlying database will be setup. We use Knex in order to generate the queries. In the above example, `t` is a Knex object.
+Thats it. The database and its underlying schema will be setup. We use Knex in order to generate the queries. In the above example, `t` is a Knex object.
 
 See: http://knexjs.org/#Schema-createTable
 
