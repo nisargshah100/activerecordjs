@@ -1,15 +1,6 @@
 class Model
   @tableName = null
   @exec = ARJS.exec # convience method
-  @hooks = {
-    'beforeSave': [],
-    'afterSave': [],
-    'afterInitialize': [],
-    'afterCreate': [],
-    'beforeCreate': [],
-    'afterUpdate': [],
-    'beforeUpdate': []
-  }
 
   # instance
 
@@ -31,18 +22,18 @@ class Model
       a[k] = @[k]
     a
 
-  save: ->
-    @_callAllHooks('beforeSave')
+  save: (options = {}) ->
+    @_callAllHooks('beforeSave') unless options.runHooks == false
     if @isNew()
-      res = @_create()
+      res = @_create(options)
     else
-      res = @_update()
-    @_callAllHooks('afterSave')
+      res = @_update(options)
+    @_callAllHooks('afterSave') unless options.runHooks == false
     res
 
-  update_attributes: (attrs) ->
+  update_attributes: (attrs, options = {}) ->
     @[k] = v for k, v of attrs
-    @_update()
+    @_update(options)
 
 
   # refresh the values & also sets the last saved hash since its straight from the database!
@@ -53,17 +44,17 @@ class Model
     @_define(hash)
     @_lastSaved = hash
 
-  _create: ->
-    @_callAllHooks('afterCreate')
+  _create: (options) ->
+    @_callAllHooks('afterCreate') unless options.runHooks == false
     a = @attrs()
     a['__id'] = @__id
     ARJS.exec(@_knex().insert(a).toString())
     @_refresh()
-    @_callAllHooks('beforeCreate')
+    @_callAllHooks('beforeCreate') unless options.runHooks == false
     true
 
-  _update: ->
-    @_callAllHooks('beforeUpdate')
+  _update: (options) ->
+    @_callAllHooks('beforeUpdate') unless options.runHooks == false
     da = @_dirtyAttributes()
     return if da.length == 0
     changedHash = {}
@@ -71,7 +62,7 @@ class Model
     q = @_knex().where('__id', '=', @__id).update(changedHash).toString()
     ARJS.exec(q)
     @_refresh()
-    @_callAllHooks('afterUpdate')
+    @_callAllHooks('afterUpdate') unless options.runHooks == false
     true
 
 
@@ -106,16 +97,23 @@ class Model
 
   # class methods
 
+  @setup = (tableName) ->
+    @tableName = tableName
+    @_setupHooks()
+
   # create all the hook methods
 
-  @beforeSave = (name) ->
-    @hooks['beforeSave'].push(@_getHookCallback(name))
+  @beforeSave = (name_or_cb) ->
+    @hooks['beforeSave'].push(@_getHookCallback(name_or_cb))
 
-  @afterInitialize = (name) ->
-    @hooks['afterInitialize'].push(@_getHookCallback(name))
+  @afterSave = (name_or_cb) ->
+    @hooks['afterSave'].push(@_getHookCallback(name_or_cb))
 
-  @beforeUpdate = (name) ->
-    @hooks['beforeUpdate'].push(@_getHookCallback(name))
+  @afterInitialize = (name_or_cb) ->
+    @hooks['afterInitialize'].push(@_getHookCallback(name_or_cb))
+
+  @beforeUpdate = (name_or_cb) ->
+    @hooks['beforeUpdate'].push(@_getHookCallback(name_or_cb))
 
   @schema = (cb) ->
     ARJS.setupTable @tableName, (t) ->
@@ -143,5 +141,16 @@ class Model
     else
       cb = name
     cb
+
+  @_setupHooks = ->
+    @hooks = {
+      'beforeSave': [],
+      'afterSave': [],
+      'beforeCreate': [],
+      'afterCreate': [],
+      'beforeUpdate': [],
+      'afterUpdate': [],
+      'afterInitialize': []
+    }
 
 window.ARJS.Model = Model

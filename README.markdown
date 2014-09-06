@@ -17,7 +17,7 @@ ActiveRecordJS takes up 3 global namespaces. The three namespaces are SQL, Knex 
 
 ```
 class User extends ARJS.Model
-  @tableName = 'users'
+  @setup = 'users'  # first argument is the table name
   @schema (t) ->
     t.string('email')
     t.string('password')
@@ -62,7 +62,7 @@ Hooks allow you run custom code at certain points in model execution. The follow
 
 ```
 class User extends ARJS.Model
-  @tableName 'users'
+  @setup 'users'
   @schema (t) ->
     t.string('email')
     t.string('password')
@@ -77,4 +77,15 @@ class User extends ARJS.Model
   # You can also specify function with the hooks
   @beforeSave ->
     console.log('hello world')
+```
+
+###### Warning about hooks
+
+There is a chance to get into an infinite loop with looks. Lets take the above example. After the model is saved, we call update attributes to save token. This update attributes does an update and so will call beforeUpdate & afterUpdate hooks. In that hook, if you were to save / update again, you would have an infinite loop. 
+
+So how you get past this? You can update / save by disabling hooks
+
+```
+  @afterSave ->
+    @update_attributes({ blah: 1 }, { runHooks: false })
 ```

@@ -6,7 +6,7 @@ describe 'Model', ->
 
   beforeEach ->
     class Foo extends ARJS.Model
-      @tableName = 'foos'
+      @setup 'foos'
       @schema (t) ->
         t.integer('a')
         t.integer('b')
@@ -16,6 +16,22 @@ describe 'Model', ->
 
   it 'creates a table', ->
     expect(Foo.isTableCreated()).toBe(true)
+
+  it 'can create multiple models', ->
+    class A extends ARJS.Model
+      @setup 'ast'
+      @schema (t) -> t.string('name')
+      @beforeSave -> console.log('ok1')
+
+    class B extends ARJS.Model
+      @setup 'bst'
+      @schema (t) -> t.string('email')
+      @beforeSave -> console.log('ok2')
+
+    expect(A.tableName).toEqual('ast')
+    expect(B.tableName).toEqual('bst')
+    expect(A.hooks['beforeSave'].length).toBe(1)
+    expect(B.hooks['beforeSave'].length).toBe(1)
 
   it 'creates an object and sets attributes', ->
     foo = new Foo(a: 1, b: 2)
@@ -81,16 +97,19 @@ describe 'Model', ->
       expect(foo.b).toBe(3)
 
   describe 'hooks', ->
+    Boo = null
+    str = ''
+
+    class Boo extends ARJS.Model
+      @setup 'boos'
+      @schema (t) -> 
+        t.string('name')
+        t.string('token')
 
     describe 'before save', ->
-      Boo = null
-      str = null
 
-      class Boo extends ARJS.Model
-        @tableName = 'boos'
-        @schema (t) -> t.string('name')
-        @lol = -> str += @name
-        @beforeSave 'lol'
+      Boo.bs = -> str += @name
+      Boo.beforeSave 'bs'
 
       beforeEach ->
         str = ''
@@ -109,17 +128,26 @@ describe 'Model', ->
 
     describe 'after save', ->
 
+      # updates the token in a hook
+      Boo.afterSave ->
+        @update_attributes({ token: ARJS.UUID() }, runHooks: false)
+
+      it 'updates the token in after save hook', ->
+        boo = new Boo(name: 'Cool')
+        expect(boo.token).toEqual(undefined)
+        boo.save()
+        expect(boo.token).not.toEqual(undefined)
 
     it 'after initialize gets called', ->
       x = 0
-      Foo.afterInitialize -> x += 1
-      new Foo(a: 1)
+      Boo.afterInitialize -> x += 1
+      new Boo(a: 1)
       expect(x).toBe(1)
 
     it 'before update gets called', ->
       x = 0
-      Foo.beforeUpdate -> x += 1
-      f = new Foo(a: 1)
+      Boo.beforeUpdate -> x += 1
+      f = new Boo(a: 1)
       f.save()
       expect(x).toBe(0)
       f.a = 2
