@@ -72,7 +72,7 @@ class User extends ARJS.Model
     @update_attributes({ token: ARJS.UUID() })
   
   # has to be below the method declaration since JS can't find it otherwise
-  @afterCreate: 'generateToken'
+  @afterCreate 'generateToken'
   
   # You can also specify function with the hooks
   @beforeSave ->
@@ -91,7 +91,7 @@ This would be an infinite loop:
   @generateToken: ->
     @update_attributes({ token: ARJS.UUID() })
 
-  @afterSave: 'generateToken'
+  @afterSave 'generateToken'
 ```
 
 This is because after we save, we call generate token which calls beforeSave, beforeUpdate, afterUpdate, afterSave hooks. This would result in afterSave getting called over and over. 
