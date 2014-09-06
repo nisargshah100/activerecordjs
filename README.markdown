@@ -1,3 +1,5 @@
+# NOT READY FOR USE YET
+
 # ActiveRecordJS
 
 A Javascript implementation similar to active record that runs completely in memory. This is useful for javascript applications that would like an orm to work with data. 
