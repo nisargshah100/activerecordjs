@@ -72,7 +72,7 @@ class User extends ARJS.Model
     @update_attributes({ token: ARJS.UUID() })
   
   # has to be below the method declaration since JS can't find it otherwise
-  @afterSave: 'generateToken'
+  @afterCreate: 'generateToken'
   
   # You can also specify function with the hooks
   @beforeSave ->
@@ -81,7 +81,20 @@ class User extends ARJS.Model
 
 ###### Infinite loop with hooks
 
-There is a chance to get into an infinite loop with hooks. Lets take the above example. After the model is saved, we call update attributes to save token. This update attributes does an update and so will call beforeUpdate & afterUpdate hooks. In that hook, if you were to update again, you would have an infinite loop. 
+There is a chance to get into an infinite loop with hooks. Lets take the above example. After the model is created, we call update attributes to save token. This update attributes does an update and so will call beforeSave, beforeUpdate, afterUpdate, afterSave hooks. In that hook, if you were to save / update again, you would have an infinite loop. 
+
+OR 
+
+This would be an infinite loop:
+
+```
+  @generateToken: ->
+    @update_attributes({ token: ARJS.UUID() })
+
+  @afterSave: 'generateToken'
+```
+
+This is because after we save, we call generate token which calls beforeSave, beforeUpdate, afterUpdate, afterSave hooks. This would result in afterSave getting called over and over. 
 
 So how you get past this? You can update / save by disabling hooks
 

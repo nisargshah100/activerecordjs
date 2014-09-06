@@ -32,8 +32,11 @@ class Model
     res
 
   update_attributes: (attrs, options = {}) ->
+    @_callAllHooks('beforeSave') unless options.runHooks == false
     @[k] = v for k, v of attrs
-    @_update(options)
+    res = @_update(options)
+    @_callAllHooks('afterSave') unless options.runHooks == false
+    res
 
 
   # refresh the values & also sets the last saved hash since its straight from the database!
