@@ -27,3 +27,11 @@ class User extends ARJS.Model
 Thats it. The database and its underlying database will be setup. We use Knex in order to generate the queries. In the above example, `t` is a Knex object.
 
 See: http://knexjs.org/#Schema-createTable
+
+#### Access & set attributes once model is created
+
+```
+  user = new Foo(email: 'a@a.com')
+  user.email
+  user.email = 'b@b.com'
+```
