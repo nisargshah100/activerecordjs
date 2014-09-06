@@ -1,12 +1,18 @@
 #= require application
 
-class Foo extends ARJS.Model
-  @tableName = 'foos'
-  @schema (t) ->
-    t.integer('a')
-    t.integer('b')
+Foo = null
 
 describe 'Model', ->
+
+  beforeEach ->
+    class Foo extends ARJS.Model
+      @tableName = 'foos'
+      @schema (t) ->
+        t.integer('a')
+        t.integer('b')
+
+  afterEach ->
+    ARJS.exec('drop table foos')
 
   it 'creates a table', ->
     expect(Foo.isTableCreated()).toBe(true)
@@ -65,3 +71,59 @@ describe 'Model', ->
       foo.save()
       foo._refresh()
       expect(foo.a).toBe(2)
+
+    it 'with update attributes', ->
+      foo = new Foo(a: 1)
+      foo.save()
+      foo.update_attributes(a: 2, b: 3)
+      foo._refresh()
+      expect(foo.a).toBe(2)
+      expect(foo.b).toBe(3)
+
+  describe 'hooks', ->
+
+    describe 'before save', ->
+      Boo = null
+      str = null
+
+      class Boo extends ARJS.Model
+        @tableName = 'boos'
+        @schema (t) -> t.string('name')
+        @lol = -> str += @name
+        @beforeSave 'lol'
+
+      beforeEach ->
+        str = ''
+
+      it 'assigns the hook properly', ->
+        new Boo(name: 'apples').save()
+        new Boo(name: 'second').save()
+        expect(str).toEqual('applessecond')
+
+      it 'gets called on update', ->
+        b = new Boo(name: 'Great')
+        b.save()
+        b.name = 'Awesome'
+        b.save()
+        expect(str).toEqual('GreatAwesome')
+
+    describe 'after save', ->
+
+
+    it 'after initialize gets called', ->
+      x = 0
+      Foo.afterInitialize -> x += 1
+      new Foo(a: 1)
+      expect(x).toBe(1)
+
+    it 'before update gets called', ->
+      x = 0
+      Foo.beforeUpdate -> x += 1
+      f = new Foo(a: 1)
+      f.save()
+      expect(x).toBe(0)
+      f.a = 2
+      f.save()
+      expect(x).toBe(1)
+      f.update_attributes(a: 10, b: 3)
+      expect(x).toBe(2)
