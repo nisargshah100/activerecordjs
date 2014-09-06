@@ -35,3 +35,12 @@ See: http://knexjs.org/#Schema-createTable
   user.email
   user.email = 'b@b.com'
 ```
+
+#### Saving & Updating Model
+
+```
+user = new User(email: 'email@email.com')
+user.save()
+user.password = 'foobar'
+user.save()
+```
