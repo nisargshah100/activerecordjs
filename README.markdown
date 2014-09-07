@@ -174,6 +174,11 @@ class User
 user = User.create({ email: 'test' })
 user.isSaved() # false
 user.isNew() # true
+user.errors() # set of errors { email: [ERRORS], name: [ERRORS] }
+
+# Save is similar to create but returns true or false
+
+user = new User({ email: 'test' })
 user.save() # false
 user.errors() # set of errors { email: [ERRORS], name: [ERRORS] }
 
