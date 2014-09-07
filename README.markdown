@@ -66,6 +66,10 @@ Hooks allow you run custom code at certain points in model execution. The follow
 * beforeUpdate
 * afterUpdate
 * afterInitialize
+* beforeValidation
+* afterValidation
+* beforeDestroy
+* afterDestroy
 
 ```
 class User extends ARJS.Model
@@ -164,3 +168,40 @@ You can provide a custom error message for each validation using `msg`. Example/
 ```
 @validates 'email', presence: { msg: 'its required' }, email: { msg: 'invalid email' }, format: { with: /@/, msg: 'has to have @ symbol' }
 ```
+
+##### Validation hooks
+
+
+If you just want to run validation on create or update or destroy, you can use:
+
+```
+@validates 'email', presence: true, on: 'create'
+@validates 'email', presence: true, on: 'update'
+@validates 'email', presence: true, on: 'destroy'
+@validates 'email', presence: true, on: 'save' # both create & update - default if none passed
+```
+
+### Custom Validations
+
+You can provide your own validations via hooks. Example validation before creating:
+
+```
+
+class User extends ARJS.Model
+  @setup 'users'
+  @schema (t) ->
+    t.string('email')
+    t.string('password')
+    t.string('token')
+  
+  @validateToken: ->
+    if @token == '123'
+      @addError('token', 'cant be 123')
+  
+  # has to be below the method declaration since JS can't find it otherwise
+  @beforeCreate 'validateToken'
+
+
+```
+
+You can add validations to beforeCreate, beforeUpdate, beforeSave or beforeDestroy
