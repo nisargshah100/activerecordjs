@@ -118,7 +118,42 @@ class User
     t.integer('age)
   
   @validates 'email', presence: true, email: true
-  @validates 'name', length: { min: 4, max: 30], msg: 'name must be between 4 to 30 characters long' }
+  @validates 'name', length: { min: 4, max: 30, msg: 'name must be between 4 to 30 characters long' }
   @validates 'age', :numericality => { :greater_than_or_equal_to => 1, :less_than => 150 }
 
+```
+
+#### Supported Validations
+
+* format
+  * with: /regex/
+* email
+* alpha
+* alphanumeric
+* numericality
+  * allow_float
+  * unsigned (only positive numbers)
+  * greater_than
+  * less_than
+  * greater_than_or_equal_to
+  * less_than_or_equal_to
+  * equal_to
+  * odd
+  * even
+* inclusion
+  * in / within (same just aliases)
+* exclusion
+  * in / within
+* length
+  * max
+  * min
+  * equals
+  * within (ex/ within: [4..10])
+ 
+###### Validation Error Message
+
+You can provide a custom error message for each validation using `msg`. Example/ 
+
+```
+@validates 'email', presence: { msg: 'its required' }, email: { msg: 'invalid email' }, format: { with: /@/, msg: 'has to have @ symbol' }
 ```
