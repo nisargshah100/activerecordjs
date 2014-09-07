@@ -255,3 +255,61 @@ class User extends ARJS.Model
 ```
 
 You can add validations to beforeCreate, beforeUpdate, beforeSave or beforeDestroy
+
+## Quering
+
+ARJS supports many ways to fetch data from database. 
+
+The following methods are supported:
+
+* all
+* where
+* first
+* last
+* offset
+* limit
+* distinct
+* orderBy
+* pluck
+
+Fetch all records:
+
+```
+User.all()
+```
+
+Fetch all records where email is `foo`
+
+```
+User.where('email = ?', 'foo').all()
+```
+
+OR
+
+```
+User.where('email', 'foo').all()
+```
+
+Get first record where email is like `foo`
+
+```
+User.where('email LIKE ?', '%foo%').first()
+```
+
+Limit email like `foo` to 10 records offset 5
+
+```
+User.where('email LIKE ?', '%foo%').offset(5).limit(10).all()
+```
+
+Return distinct records for emails
+
+```
+User.distinct('email').all()
+```
+
+Pluck emails from all users
+
+```
+User.pluck('email') # returns array - ex/ [email1, email2, email3]
+```
