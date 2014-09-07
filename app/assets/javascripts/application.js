@@ -17,6 +17,7 @@
 //= require activerecordjs/module
 //= require activerecordjs/hooks
 //= require activerecordjs/validation
+//= require activerecordjs/query
 //= require activerecordjs/model
 
 window.ARJS = {}

@@ -75,6 +75,23 @@ user.reload()
 user.update_attributes({ email: 'c@c.com', password: 'boo' })
 ```
 
+#### get hash from model
+
+```
+user.attrs()
+```
+
+#### Timestamps
+
+If you want to model to be timestamped in javascript whenever created / updated, you can use:
+
+```
+class User
+  @setup 'users', { timestamps: true }
+```
+
+This will add created_at & updated_at to your schema and add callbacks that update those values on create / update.
+
 ### Hooks
 
 Hooks allow you run custom code at certain points in model execution. The following hooks are available:

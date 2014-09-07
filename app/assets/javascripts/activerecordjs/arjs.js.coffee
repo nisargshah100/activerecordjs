@@ -14,6 +14,7 @@ ARJS.UUID = (length=64) ->
   id.substr 0, length
 
 ARJS.resultsToHash = (results) ->
+  return [] if !results? || results.length == 0
   keys = results[0].columns
   valuesArray = results[0].values
 

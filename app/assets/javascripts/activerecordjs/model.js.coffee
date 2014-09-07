@@ -5,14 +5,21 @@ class Model extends ARJS.Module
   @include(ARJS.Hooks.instanceMethods)
   @extend(ARJS.Validation.classMethods)
   @include(ARJS.Validation.instanceMethods)
+  @extend(ARJS.Query.classMethods)
+  @include(ARJS.Query.instanceMethods)
 
   # instance
 
-  constructor: (attrs) ->
-    @__id = ARJS.UUID() # is a unique id to find record from sql (internal use only) - auto added to schema
+  constructor: (attrs, options = {}) ->
     @_define(attrs)
-    @_lastSaved = null
+    
+    if options._wrap
+    else
+      @__id = ARJS.UUID() # is a unique id to find record from sql (internal use only) - auto added to schema
+      @_lastSaved = null
+    
     @_callAllHooks('afterInitialize')
+    @
 
   isSaved: ->
     @_dirtyAttributes().length == 0
@@ -134,15 +141,21 @@ class Model extends ARJS.Module
 
   # class methods
 
-  @setup = (tableName) ->
+  @knex = ->
+    ARJS.knex(@tableName)
+
+  @setup = (tableName, options = {}) ->
     @tableName = tableName
+    @_timestamps = options.timestamps
     @_setupHooks()
     @_setupValidations()
+    @_setupTimestamps() if options.timestamps
 
   @schema = (cb) ->
-    ARJS.setupTable @tableName, (t) ->
+    ARJS.setupTable @tableName, (t) =>
       cb(t)
       t.string('__id').index()
+      t.timestamps() if @_timestamps
 
     # get table info & check which keys were created. store them in @keys
     if @isTableCreated
@@ -154,8 +167,20 @@ class Model extends ARJS.Module
     else
       throw new Error('Unable to create the table')
 
+  @create = (args) ->
+    new @(args).save()
+
   @isTableCreated = ->
     result = @exec("PRAGMA table_info(#{@tableName})")
     result.length > 0
+
+  @_setupTimestamps = ->
+    @afterCreate ->
+      t = new Date()
+      @update_attributes(created_at: t, { runHooks: false })
+      @update_attributes(updated_at: t, { runHooks: false })
+
+    @afterUpdate ->
+      @update_attributes(updated_at: new Date(), { runHooks: false })
 
 window.ARJS.Model = Model
