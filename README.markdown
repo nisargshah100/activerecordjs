@@ -69,11 +69,13 @@ user.destroy({ runHooks: false })
 user.reload()
 ```
 
-# update attributes is also available
+#### update attributes is also available
+
+```
 user.update_attributes({ email: 'c@c.com', password: 'boo' })
 ```
 
-#### Hooks
+### Hooks
 
 Hooks allow you run custom code at certain points in model execution. The following hooks are available:
 
