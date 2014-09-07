@@ -50,6 +50,24 @@ user = new User(email: 'email@email.com')
 user.save()
 user.password = 'foobar'
 user.save()
+```
+
+#### Destroy Model
+
+
+```
+user = new User(email: 'a@a.com')
+user.destroy()
+
+# without callbacks
+user.destroy({ runHooks: false })
+```
+
+#### reload model from db
+
+```
+user.reload()
+```
 
 # update attributes is also available
 user.update_attributes({ email: 'c@c.com', password: 'boo' })
