@@ -62,6 +62,10 @@ describe 'Model', ->
       foo.b = 3
       expect(foo._dirtyAttributes()).toEqual(['b'])
 
+  it 'create returns object', ->
+    foo = Foo.create(a: 1)
+    expect(foo.a).toBe(1)
+
   describe 'save (new object)', ->
 
     it 'saves the model', ->

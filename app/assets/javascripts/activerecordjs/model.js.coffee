@@ -168,7 +168,9 @@ class Model extends ARJS.Module
       throw new Error('Unable to create the table')
 
   @create = (args) ->
-    new @(args).save()
+    user = new @(args)
+    user.save()
+    user
 
   @isTableCreated = ->
     result = @exec("PRAGMA table_info(#{@tableName})")

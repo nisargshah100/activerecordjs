@@ -168,6 +168,14 @@ class User
   @validates 'email', presence: true, email: true
   @validates 'name', length: { min: 4, max: 30, msg: 'name must be between 4 to 30 characters long' }
   @validates 'age', :numericality => { :greater_than_or_equal_to => 1, :less_than => 150 }
+  
+### saving a user that fails validation
+
+user = User.create({ email: 'test' })
+user.isSaved() # false
+user.isNew() # true
+user.save() # false
+user.errors() # set of errors { email: [ERRORS], name: [ERRORS] }
 
 ```
 
