@@ -102,3 +102,23 @@ So how you get past this? You can update / save by disabling hooks
   @afterSave ->
     @update_attributes({ blah: 1 }, { runHooks: false })
 ```
+
+### Validation
+
+There are bunch of validations supported and you can easily define custom validations as needed. 
+
+Example:
+
+```
+class User
+  @setup 'users'
+  @schema (t) ->
+    t.string('email')
+    t.string('name')
+    t.integer('age)
+  
+  @validates 'email', presence: true, email: true
+  @validates 'name', length: { min: 4, max: 30], msg: 'name must be between 4 to 30 characters long' }
+  @validates 'age', :numericality => { :greater_than_or_equal_to => 1, :less_than => 150 }
+
+```
