@@ -38,7 +38,11 @@ ARJS.Hooks = {
         'afterCreate': [],
         'beforeUpdate': [],
         'afterUpdate': [],
-        'afterInitialize': []
+        'afterInitialize': [],
+        'beforeValidation': [],
+        'afterValidation': [],
+        'beforeDestroy': [],
+        'afterDestroy': []
       }
   }
 

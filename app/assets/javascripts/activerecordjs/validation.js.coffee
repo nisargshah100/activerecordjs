@@ -17,6 +17,11 @@ ARJS.Validation.Rules = {
         options.msg || "is invalid"
 
       validate: (value) ->
+        value = null if value == undefined
+        vString = JSON.stringify(value) if typeof(value) != 'string'
+
+        return true if value == null || value == ''
+
         format = options.with
         format = options if ((typeof(options) == 'string') || (options instanceof RegExp)) && !format?
         throw new Error('format not specified for validator. specify using { format: /abc/ } or { format: { with: /abc/ }}') if !format?
@@ -61,6 +66,9 @@ ARJS.Validation.Rules = {
         options.msg || 'must be a valid number'
 
       validate: (value) ->
+        value = null if value == undefined
+        # return false if value == null
+
         regex = /^\-?[0-9]+$/
         regex = /^\-?[0-9]+\.?[0-9]+$/ if options.allow_float
         regex = /^[0-9]+$/ if options.unsigned
@@ -139,13 +147,22 @@ ARJS.Validation = {
 
   classMethods: {
     validates: (name, options = {}) ->
+      onMethod = options['on'] || ['create', 'update']
+      onMethod = ['create', 'update'] if onMethod == 'save'
+      delete options['on']
+      onMethod = [onMethod] if typeof(onMethod) == 'string'
+
       @_validationRules[name] ||= []
       for vName, vOptions of options
         validator = ARJS.Validation.rules[vName]
         if validator
-          @_validationRules[name].push(validator(vOptions))
+          @_validationRules[name].push({ validator: validator(vOptions), on: onMethod })
         else
           throw new Error("unknown validator: #{vName}")
+
+    # validate: (fn, options) ->
+    #   @_customValidations ||= []
+    #   @_customValidations.push(fn)
 
     _setupValidations: ->
       @_validationRules = {}
@@ -153,10 +170,38 @@ ARJS.Validation = {
 
 
   instanceMethods: {
-    
-    _validate: ->
-      console.log @
-      
+
+    errors: ->
+      @_errors || {}
+
+    errorKeys: ->
+      keys = []
+      keys.push(key) for key, v of @_errors
+      keys
+
+    hasErrors: ->
+      @_errors? && @errorKeys().length > 0
+
+    addError: (name, error) ->
+      @_errors ||= {}
+      @_errors[name] ||= []
+      @_errors[name].push(error)
+
+    _validate: (onMethod) ->
+      @_errors = {}
+
+      rules = @.constructor._validationRules
+      attrs = @attrs()
+
+      for attr, val of attrs
+        if rules[attr]
+          for v in rules[attr]
+            validator = v.validator
+            methods = v.on
+            if onMethod in methods
+              result = validator.validate(val)
+              if result == false
+                @addError(attr, validator.message())
   }
 
 }

@@ -77,6 +77,11 @@ describe 'Model', ->
       expect(foo.c).toBe(undefined)
       expect(foo.a).toBe(1)
 
+  it 'destroy a object', ->
+    foo = new Foo(a: 1, b: 2)
+    expect(foo.destroy()).toBe(true)
+    expect(foo.reload()).toBe(false)
+
   describe 'updates a object', ->
 
     it 'updates the model', ->
@@ -200,7 +205,15 @@ describe 'Model', ->
     it 'accepts validates property & sets up the rules', ->
       Voo.validates 'email', 'presence': { msg: 'boo yeah' }
       expect(Voo._validationRules.email.length).toBe(1)
-      expect(Voo._validationRules.email[0].message()).toEqual('boo yeah')
+      expect(Voo._validationRules.email[0].validator.message()).toEqual('boo yeah')
+      expect(Voo._validationRules.email[0].on).toEqual(['create', 'update'])
+
+    it 'sets validation on method', ->
+      Voo.validates 'email', presence: { msg: 'lol' }, on: 'update'
+      expect(Voo._validationRules.email[0].on).toEqual(['update'])
+
+      Voo.validates 'name', presence: { msg: 'lol' }, on: ['update', 'delete']
+      expect(Voo._validationRules.name[0].on).toEqual(['update', 'delete'])
 
     it 'errors if invalid rule is specified', ->
       expect(-> Voo.validates('email', 'abcdef': true)).toThrow(new Error('unknown validator: abcdef'))
@@ -220,3 +233,79 @@ describe 'Model', ->
       expect(Voo._validationRules.email.length).toBe(1)
       expect(Voo._validationRules.name).toBe(undefined)
       ARJS.exec('drop table voostwo')
+
+    it 'runs validation on model', ->
+      Voo.validates 'email', presence: { msg: 'foo bar' }
+      Voo.validates 'name', email: true # format must be email if specified. 
+
+      v = new Voo(email: '')
+      v._validate('create')
+      expect(v.errorKeys()).toEqual(['email'])
+      expect(v.errors()['email'].length).toBe(1)
+      expect(v.errors()['email'][0]).toEqual('foo bar')
+
+    it 'runs multiple validations', ->
+      Voo.validates 'email', presence: true
+      Voo.validates 'name', email: { msg: 'lala' }, presence: true
+      v = new Voo()
+      expect(v.hasErrors()).toBe(false)
+      v._validate('create')
+      expect(v.errorKeys()).toEqual(['name', 'email'])
+      expect(v.errors()['email'][0]).toEqual('is required')
+      expect(v.errors()['name'][0]).toEqual('is required')
+
+      v.name = 'blah'
+      v._validate('create')
+      expect(v.errors()['name'].length).toBe(1)
+      expect(v.errors()['name'][0]).toEqual('lala')
+      expect(v.hasErrors()).toBe(true)
+
+    it 'runs validation on save', ->
+      Voo.validates 'email', presence: true, email: true
+      v = new Voo()
+      expect(v.save()).toBe(false)
+      expect(v.errors()['email'][0]).toEqual('is required')
+      v.update_attributes(email: 'hi')
+      expect(v.save()).toBe(false)
+      expect(v.errors()['email'][0]).toEqual('must be an email address')
+      expect(v.email).toEqual('hi')
+      expect(v.reload()).toBe(false)
+      expect(v.email).toEqual('hi')
+
+
+    it 'runs validation on update only', ->
+      Voo.validates 'email', presence: true, email: true, on: 'update'
+      v = new Voo(email: 'boo')
+      expect(v.save()).toBe(true)
+      v.email = 'cool'
+      expect(v.save()).toBe(false)
+      expect(v.email).toEqual('cool')
+      expect(v.reload()).toBe(true)
+      expect(v.email).toEqual('boo')
+
+    it 'runs validation on destroy', ->
+      Voo.validates 'email', presence: true, on: 'destroy'
+      v = new Voo()
+      v.save()
+      expect(v.destroy()).toBe(false)
+      expect(v.reload()).toBe(true)
+      v.email = 'a'
+      v.save()
+      expect(v.destroy()).toBe(true)
+
+    it 'can add error on before create', ->
+      Voo.beforeCreate ->
+        @addError('email', 'something broke!')
+
+      v = new Voo(email: 'lol')
+      expect(v.save()).toBe(false)
+      expect(v.errors().email[0]).toEqual('something broke!')
+
+    it 'can add error on before update', ->
+      Voo.beforeUpdate ->
+        @addError('email', 'boo')
+
+      v = new Voo(email: 'good')
+      v.save()
+      expect(v.update_attributes(email: 'second')).toBe(false)
+      expect(v.errors().email[0]).toEqual('boo')

@@ -19,6 +19,9 @@ describe 'Validation', ->
     expect(ARJS.Validation.rules.format(/amazing/).validate('ama')).toBe(false)
     expect(ARJS.Validation.rules.format(/[a-z]{4}/).validate('good')).toBe(true)
     expect(ARJS.Validation.rules.format(/[a-z]{4}/).validate('gOod')).toBe(false)
+    expect(ARJS.Validation.rules.format(/\d+/).validate(null)).toBe(true)
+    expect(ARJS.Validation.rules.format(/\d+/).validate(undefined)).toBe(true)
+    expect(ARJS.Validation.rules.format(/\d+/).validate('')).toBe(true)
 
   it 'email', ->
     expect(ARJS.Validation.rules.email().validate('abc')).toBe(false)
@@ -28,6 +31,8 @@ describe 'Validation', ->
     expect(ARJS.Validation.rules.email().validate('apples.com')).toBe(false)
     expect(ARJS.Validation.rules.email().validate('testing@test.aaaa')).toBe(true)
     expect(ARJS.Validation.rules.email().validate(123)).toBe(false)
+    expect(ARJS.Validation.rules.email().validate(undefined)).toBe(true)
+    expect(ARJS.Validation.rules.email().validate(null)).toBe(true)
 
   it 'alpha', ->
     expect(ARJS.Validation.rules.alpha().validate('abc')).toBe(true)
@@ -123,6 +128,9 @@ describe 'Validation', ->
     expect(n(odd: true).validate('9.0')).toBe(false)
     expect(n(odd: true, allow_float:true).validate('9.0')).toBe(true)
     expect(n(odd: true, allow_float:true).validate('-10.0')).toBe(false)
+
+    expect(n(odd: true, allow_float:true).validate(undefined)).toBe(false)
+    expect(n(odd: true, allow_float:true).validate(null)).toBe(false)
 
   it 'inclusion', ->
     v = ARJS.Validation.rules.inclusion

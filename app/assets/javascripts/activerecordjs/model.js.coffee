@@ -36,19 +36,44 @@ class Model extends ARJS.Module
   update_attributes: (attrs, options = {}) ->
     @_define(attrs)
     @_update(options)
-    
+
+  reload: ->
+    @_refresh()
+
+  destroy: (options = {}) ->
+    @_callAllHooks('beforeValidation', options)
+    @_validate('destroy')
+    @_callAllHooks('afterValidation', options)
+    @_callAllHooks('beforeDestroy', options)
+    return false if @hasErrors()
+
+    ARJS.exec(@_knex().where({ __id: @__id }).del().toString())
+    @_callAllHooks('afterDestroy', options)
+    true
 
   # refresh the values & also sets the last saved hash since its straight from the database!
   _refresh: ->
     result = ARJS.exec(@_knex().where({ __id: @__id }).limit(1).toString())
-    hash = ARJS.resultsToHash(result)[0]
-    delete hash['__id']
-    @_define(hash)
-    @_lastSaved = hash
+    if result.length == 1
+      hash = ARJS.resultsToHash(result)[0]
+      delete hash['__id']
+      @_define(hash)
+      @_lastSaved = hash
+      true
+    else
+      false
 
   _create: (options) ->
+    # lets do some validation!
+    @_callAllHooks('beforeValidation', options)
+    @_validate('create')
+    @_callAllHooks('afterValidation', options)
+
     @_callAllHooks('beforeSave', options)
     @_callAllHooks('beforeCreate', options)
+    
+    return false if @hasErrors()
+    
     a = @attrs()
     a['__id'] = @__id
     ARJS.exec(@_knex().insert(a).toString())
@@ -60,8 +85,17 @@ class Model extends ARJS.Module
   _update: (options) ->
     da = @_dirtyAttributes()
     return if da.length == 0
+
+    # lets do some validation!
+    @_callAllHooks('beforeValidation', options)
+    @_validate('update')
+    @_callAllHooks('afterValidation', options)
+
     @_callAllHooks('beforeSave', options)
     @_callAllHooks('beforeUpdate', options)
+    
+    return false if @hasErrors()
+
     changedHash = {}
     changedHash[k] = @[k] for k in da
     q = @_knex().where('__id', '=', @__id).update(changedHash).toString()
