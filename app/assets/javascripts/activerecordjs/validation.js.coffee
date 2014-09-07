@@ -153,7 +153,10 @@ ARJS.Validation = {
 
 
   instanceMethods: {
-
+    
+    _validate: ->
+      console.log @
+      
   }
 
 }

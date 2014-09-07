@@ -8,7 +8,14 @@ A Javascript implementation similar to active record that runs completely in mem
 
 ### Namespace
 
-ActiveRecordJS takes up 3 global namespaces. The three namespaces are SQL, Knex & ARJS. 
+ActiveRecordJS is encompassed in ARJS global. We rely on two other libraries - Knex & SQL.js which take up its own namespaces. 
+
+### Thanks to
+
+This project is only possible due to the awesome libraries that power ARJS. 
+
+* https://github.com/kripken/sql.js/ (in memory sql implementation of sql for js)
+* http://knexjs.org/ (query builder) 
 
 -------------
 
