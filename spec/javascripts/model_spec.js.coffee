@@ -183,3 +183,40 @@ describe 'Model', ->
       expect(x).toBe(0)
       f.update_attributes(name: 'apples2')
       expect(x).toBe(1)
+
+  describe 'validations', ->
+    Voo = null
+
+    beforeEach ->
+      class Voo extends ARJS.Model
+        @setup 'voos'
+        @schema (t) ->
+          t.string 'name'
+          t.string 'email'
+
+    afterEach ->
+      ARJS.exec('drop table voos')
+
+    it 'accepts validates property & sets up the rules', ->
+      Voo.validates 'email', 'presence': { msg: 'boo yeah' }
+      expect(Voo._validationRules.email.length).toBe(1)
+      expect(Voo._validationRules.email[0].message()).toEqual('boo yeah')
+
+    it 'errors if invalid rule is specified', ->
+      expect(-> Voo.validates('email', 'abcdef': true)).toThrow(new Error('unknown validator: abcdef'))
+
+    it 'multiple classes with different validations', ->
+      class VooTwo extends ARJS.Model
+        @setup 'voostwo'
+        @schema (t) ->
+          t.string 'name'
+
+        @validates 'name', presence: true
+
+      Voo.validates 'email', presence: true
+      
+      expect(VooTwo._validationRules.email).toBe(undefined)
+      expect(VooTwo._validationRules.name.length).toBe(1)
+      expect(Voo._validationRules.email.length).toBe(1)
+      expect(Voo._validationRules.name).toBe(undefined)
+      ARJS.exec('drop table voostwo')

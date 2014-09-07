@@ -1,5 +1,8 @@
 class User < ActiveRecord::Base
 
+  validates :email, :presence => true
+  validates :age, :presence => true, :length => { :minimum => 3 }
+
   before_save :bs
   after_save :as
   before_create :bc
@@ -13,7 +16,7 @@ class User < ActiveRecord::Base
 
   def as
     puts '-----------------  after save called --------------------'
-    update_attributes(:name => 'apples')
+    # update_attributes(:name => 'apples')
   end
 
   def bc

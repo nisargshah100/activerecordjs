@@ -3,6 +3,8 @@ class Model extends ARJS.Module
   @exec = ARJS.exec # convience method
   @extend(ARJS.Hooks.classMethods)
   @include(ARJS.Hooks.instanceMethods)
+  @extend(ARJS.Validation.classMethods)
+  @include(ARJS.Validation.instanceMethods)
 
   # instance
 
@@ -101,6 +103,7 @@ class Model extends ARJS.Module
   @setup = (tableName) ->
     @tableName = tableName
     @_setupHooks()
+    @_setupValidations()
 
   @schema = (cb) ->
     ARJS.setupTable @tableName, (t) ->
