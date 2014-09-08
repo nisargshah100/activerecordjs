@@ -124,7 +124,7 @@ destroy methods call all the hooks before deleting. If you have a validation on 
 class User
   @setup 'users'
   @schema (t) -> t.string('name')
-  @validates 'name', presence: true, on: 'delete'
+  @validates 'name', presence: true, on: 'destroy'
 
 u = User.create()
 
