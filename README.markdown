@@ -273,6 +273,7 @@ The following methods are supported:
 * pluck
 * groupBy
 * having
+* count
 
 Fetch all records:
 
@@ -326,4 +327,11 @@ Group by having
 
 ```
 User.groupBy('count').having('count', '>', 300).all()
+```
+
+Count 
+
+```
+User.count()
+User.where('email = ?', 'foo').count()
 ```
