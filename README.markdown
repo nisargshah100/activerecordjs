@@ -271,6 +271,8 @@ The following methods are supported:
 * distinct
 * orderBy
 * pluck
+* groupBy
+* having
 
 Fetch all records:
 
@@ -312,4 +314,16 @@ Pluck emails from all users
 
 ```
 User.pluck('email') # returns array - ex/ [email1, email2, email3]
+```
+
+Group by email address
+
+```
+User.groupBy('email').all()
+```
+
+Group by having
+
+```
+User.groupBy('count').having('count', '>', 300).all()
 ```

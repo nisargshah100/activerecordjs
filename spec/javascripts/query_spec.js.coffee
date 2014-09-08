@@ -50,3 +50,15 @@ describe 'Query', ->
   it 'orders the records', ->
     expect(User.orderBy('created_at asc').first().email).toEqual('a1@a.com')
     expect(User.orderBy('created_at desc').first().email).toEqual('a100@a.com')
+
+  it 'groups the records', ->
+    user = User.create(email: "a#{x}@a.com", password: 'boo', name: "user#{x}")
+    expect(User.groupBy('password').all().length).toBe(2)
+    user.destroy()
+
+  it 'having in record', ->
+    user = User.create(email: "a#{x}@a.com", password: 'boo', name: "user#{x}")
+    u = User.groupBy('password').having('password', '=', 'boo').all()
+    expect(u.length).toBe(1)
+    expect(u[0].password).toEqual('boo')
+    user.destroy()

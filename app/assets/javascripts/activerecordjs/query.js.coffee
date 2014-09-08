@@ -59,8 +59,16 @@ class QueryBuilder
       vals = x.split(' ')
       x = vals[0]
       y = vals[1]
-      
+
     @knex.orderBy(x, y)
+    @
+
+  groupBy: (q) ->
+    @knex.groupByRaw(q)
+    @
+
+  having: (q, op, val) ->
+    @knex.having(q, op, val)
     @
 
   all: ->
@@ -75,6 +83,9 @@ ARJS.Query = {
 
     orderBy: (x, y) ->
       new QueryBuilder(@).orderBy(x, y)
+
+    groupBy: (q) ->
+      new QueryBuilder(@).groupBy(q)
 
     distinct: (attrs...) ->
       new QueryBuilder(@).distinct(attrs...)
@@ -99,6 +110,9 @@ ARJS.Query = {
 
     pluck: (attrs...) ->
       new QueryBuilder(@).pluck(attrs...)
+
+    having: (q, op, val) ->
+      new QueryBuilder(@).having(q, op, val)
   }
 
   instanceMethods: {
