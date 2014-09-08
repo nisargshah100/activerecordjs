@@ -52,6 +52,13 @@ user.password = 'foobar'
 user.save()
 ```
 
+In active record, using `!` on save would raise an error instead of returning a boolean. Same can be achieved through:
+
+```
+user.saveOrError()   # throws error with body 'saveError'
+```
+
+
 #### Destroy Model
 
 
@@ -73,6 +80,8 @@ user.reload()
 
 ```
 user.updateAttributes({ email: 'c@c.com', password: 'boo' })
+
+user.updateAttributesOrError({ email: 'c@c.com', password: 'boo' })
 ```
 
 #### get hash from model
