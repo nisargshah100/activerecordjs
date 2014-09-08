@@ -230,6 +230,8 @@ user.errors() # set of errors { email: [ERRORS], name: [ERRORS] }
 
 #### Supported Validations
 
+* uniqueness
+  * scope
 * format
   * with: /regex/
 * email
@@ -269,7 +271,7 @@ You can provide a custom error message for each validation using `msg`. Example/
 If you just want to run validation on create or update or destroy, you can use:
 
 ```
-@validates 'email', presence: true, on: 'create'
+@validates 'email', presence: true, uniqueness: true, on: 'create'
 @validates 'email', presence: true, on: 'update'
 @validates 'email', presence: true, on: 'destroy'
 @validates 'email', presence: true, on: 'save' # both create & update - default if none passed

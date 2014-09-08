@@ -2,6 +2,7 @@ ARJS.db = new SQL.Database()
 ARJS.knex = Knex(client: 'sqlite3')
 
 ARJS.exec = (query) ->
+  query = query.replace(/\= NULL/g, 'is NULL')
   ARJS.db.exec(query)
 
 ARJS.setupTable = (tableName, cb) ->

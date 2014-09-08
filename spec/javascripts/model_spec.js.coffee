@@ -418,3 +418,19 @@ describe 'Model', ->
     foo.save()
     expect(Foo.count()).toBe(1)
     expect(Foo.first().attrs()).toEqual({ a: 3, b: 2 })
+
+  describe 'unique attribute', ->
+    it 'on single attribute', ->
+      Foo.validates 'a', uniqueness: true
+      expect(Foo.create(a: -1).hasErrors()).toBe(false)
+      expect(Foo.create(a: -1).hasErrors()).toBe(true)
+
+    it 'with scope', ->
+      Foo.validates 'a', uniqueness: { scope: 'b', msg: 'good' }
+      expect(Foo.create(a: -1).hasErrors()).toBe(false)
+      expect(Foo.create(a: -1).hasErrors()).toBe(true)
+      expect(Foo.create(a: -1, b: 1).hasErrors()).toBe(false)
+      f = Foo.create(a: -1, b: 1)
+      expect(f.hasErrors()).toBe(true)
+      expect(f.errors()).toEqual({ a: ['good']})
+      expect(Foo.count()).toBe(2)

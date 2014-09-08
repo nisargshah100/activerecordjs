@@ -6,6 +6,7 @@ class QueryBuilder
 
   where: (q, params) ->
     return @ if !q?
+    params = [params] if !(params instanceof Array)
     q = ARJS.knex.raw(q, params) if typeof(q) == 'string'
     @knex = @knex.where(q)
     @

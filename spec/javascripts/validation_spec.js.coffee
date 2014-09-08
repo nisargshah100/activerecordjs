@@ -179,3 +179,26 @@ describe 'Validation', ->
     expect(v(within: [1..3]).validate('abcd')).toBe(false)
     expect(v(within: [1..3]).validate('a')).toBe(true)
     expect(v(within: [1..3]).validate('')).toBe(false)
+
+  it 'uniqueness', ->
+    class Foo extends ARJS.Model
+      @setup 'foos'
+      @schema (t) -> 
+        t.string('email')
+        t.string('name')
+
+    Foo.create(email: 'a@a.com')
+
+    v = ARJS.Validation.rules.uniqueness
+    
+    expect(v({}, 'email', Foo).validate('a@a.com')).toBe(false)
+    expect(v({}, 'email', Foo).validate('a2@a.com')).toBe(true)
+    expect(v({}, 'name', Foo).validate('a@a.com')).toBe(true)
+    expect(v({}, 'email', Foo).validate(null)).toBe(true)
+    Foo.create()
+    expect(v({}, 'email', Foo).validate(null)).toBe(false)
+
+    Foo.createOrError(email: 'a', name: 'apples')
+    expect(v({}, 'email', Foo).validate('a')).toBe(false)
+    expect(v({ scope: 'name' }, 'email', Foo).validate('a', new Foo(name: 'boo'))).toBe(true)
+    expect(v({ scope: 'name' }, 'email', Foo).validate('a', new Foo(name: 'apples'))).toBe(false)

@@ -117,3 +117,16 @@ describe 'Query', ->
       catch e
         expect(e.errors).toEqual({ name: ['is required']})
         expect(e.model.__id).not.toBe(undefined)
+
+    it 'where on null', ->
+      User.create(name: 'boo')
+      expect(User.count()).toBe(101)
+      expect(User.where('email = ?', null).count()).toBe(1)
+      expect(User.where('email = ?', undefined).count()).toBe(1)
+      expect(User.where('email = ? AND password = ?', [null, null]).count()).toBe(1)
+      expect(User.where('email = ?', null).where('password = ?', null).where('name = ?', 'boo').count()).toBe(1)
+      expect(User.where('email = ?', null).where('password = ?', null).where('name = ?', 'boos').count()).toBe(0)
+      expect(User.where('email = ? AND password = ? AND name = ?', [null, null, 'boo']).count()).toBe(1)
+      expect(User.where('email = ? AND password = ? AND name = ?', [null, null, 'boos']).count()).toBe(0)
+      expect(User.where({ email: null, password: null, name: 'boo' }).count()).toBe(1)
+      expect(User.where({ email: null, password: null, name: 'boos' }).count()).toBe(0)

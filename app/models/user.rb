@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
 
-  validates :email, :presence => true
+  validates :email, :uniqueness => true
   validates :age, :presence => true, :length => { :minimum => 3 }
 
   before_save :bs

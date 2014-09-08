@@ -129,6 +129,17 @@ ARJS.Validation.Rules = {
 
         valid
     }
+
+  Uniqueness: (options = {}, @name, @model) ->
+    {
+      message: ->
+        options.msg || 'is already taken'
+
+      validate: (value, model) =>
+        q = @model.where("#{@name} = ?", value)
+        q.where("#{options.scope} = ?", model[options.scope]) if options.scope
+        !q.first()?
+    }
 }
 
 ARJS.Validation = {
@@ -142,7 +153,8 @@ ARJS.Validation = {
     'numericality': ARJS.Validation.Rules.Numericality,
     'inclusion': ARJS.Validation.Rules.Inclusion,
     'exclusion': ARJS.Validation.Rules.Exclusion,
-    'length': ARJS.Validation.Rules.Length
+    'length': ARJS.Validation.Rules.Length,
+    'uniqueness': ARJS.Validation.Rules.Uniqueness
   }
 
   classMethods: {
@@ -156,13 +168,9 @@ ARJS.Validation = {
       for vName, vOptions of options
         validator = ARJS.Validation.rules[vName]
         if validator
-          @_validationRules[name].push({ validator: validator(vOptions), on: onMethod })
+          @_validationRules[name].push({ validator: validator(vOptions, name, @), on: onMethod })
         else
           throw new Error("unknown validator: #{vName}")
-
-    # validate: (fn, options) ->
-    #   @_customValidations ||= []
-    #   @_customValidations.push(fn)
 
     _setupValidations: ->
       @_validationRules = {}
@@ -199,7 +207,7 @@ ARJS.Validation = {
             validator = v.validator
             methods = v.on
             if onMethod in methods
-              result = validator.validate(val)
+              result = validator.validate(val, @)
               if result == false
                 @addError(attr, validator.message())
   }
