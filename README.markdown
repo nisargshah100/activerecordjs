@@ -300,6 +300,36 @@ class User extends ARJS.Model
 
 You can add validations to beforeCreate, beforeUpdate, beforeSave or beforeDestroy
 
+## Transactions
+
+Transactions are supported using Model.transcation block. 
+
+```
+try
+  User.transaction ->
+    User.createOrError(email: 'a@a.com')       # good
+    User.createOrError(email: '')              # fails - missing email  
+catch e
+  e.name    # RecordInvalid
+  e.errors  # { email: ['is required'] }
+  e.model   # user object that failed creating
+
+User.count()      # 0 since transaction failed
+```
+
+If you want to manually rollback transaction, you can throw any error in the transaction block
+
+```
+try
+  User.transaction ->
+    User.createOrError(email: 'a@a.com')     # good
+    throw new Error('boo')
+catch e
+  # e = boo error
+
+User.count()        # 0 since transaction failed
+```
+
 ## Quering
 
 ARJS supports many ways to fetch data from database. 
