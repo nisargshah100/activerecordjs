@@ -116,7 +116,7 @@ This will add created_at & updated_at to your schema and add callbacks that upda
 
 #### Delete all models
 
-To delete all models, there is destroyAll, destroyAllOrError & deleteAll
+To delete all models, there are destroyAll, destroyAllOrError & deleteAll methods.
 
 destroy methods call all the hooks before deleting. If you have a validation on destroy, calling destroy would run the validation.
 
