@@ -131,6 +131,8 @@ class Model extends ARJS.Module
   _define: (attrs) ->
     x = @_attrsInSchema(attrs)
     @[k] = v for k, v of x
+    for x in @.constructor.keys
+      @[x] ||= null
 
   # verifies the attributes are in schema
   _attrsInSchema: (attrs) ->

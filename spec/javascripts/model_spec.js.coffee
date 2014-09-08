@@ -33,6 +33,10 @@ describe 'Model', ->
     expect(A.hooks['beforeSave'].length).toBe(1)
     expect(B.hooks['beforeSave'].length).toBe(1)
 
+  it 'any attribute not passed in is null and not undefined', ->
+    f = new Foo(a: 1)
+    expect(f.b).toBe(null)
+
   it 'creates an object and sets attributes', ->
     foo = new Foo(a: 1, b: 2)
     expect(foo.a).toBe(1)
@@ -177,9 +181,9 @@ describe 'Model', ->
 
       it 'updates the token in after save hook', ->
         boo = new Boo(name: 'Cool')
-        expect(boo.token).toEqual(undefined)
+        expect(boo.token).toEqual(null)
         boo.save()
-        expect(boo.token).not.toEqual(undefined)
+        expect(boo.token).not.toEqual(null)
 
     it 'before create', ->
       x = 0
