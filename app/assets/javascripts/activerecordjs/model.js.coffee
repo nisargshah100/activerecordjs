@@ -42,11 +42,15 @@ class Model extends ARJS.Module
 
   saveOrError: (options = {}) ->
     res = @save(options)
-    throw new Error('unable to save') if res != true
+    throw new Error('saveError') if res != true
 
   updateAttributes: (attrs, options = {}) ->
     @_define(attrs)
     @_update(options)
+
+  updateAttributesOrError: (attrs, options = {}) ->
+    res = @updateAttributes(attrs, options)
+    throw new Error('updateError') if res != true
 
   reload: ->
     @_refresh()

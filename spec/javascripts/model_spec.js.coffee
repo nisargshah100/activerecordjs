@@ -81,6 +81,12 @@ describe 'Model', ->
       expect(foo.c).toBe(undefined)
       expect(foo.a).toBe(1)
 
+    it 'fails to save on error', ->
+      Foo.validates 'a', presence: true
+      foo = new Foo()
+      expect(foo.save()).toBe(false)
+      expect(-> foo.saveOrError()).toThrow(new Error('saveError'))
+
   it 'destroy a object', ->
     foo = new Foo(a: 1, b: 2)
     expect(foo.destroy()).toBe(true)
@@ -104,6 +110,14 @@ describe 'Model', ->
       foo._refresh()
       expect(foo.a).toBe(2)
       expect(foo.b).toBe(3)
+
+    it 'with update attributes fails error', ->
+      Foo.validates 'a', presence: true
+
+      foo = new Foo(a: 1)
+      foo.save()
+      expect(-> foo.updateAttributesOrError(a: null)).toThrow(new Error('updateError'))
+
 
   describe 'hooks', ->
     Boo = null
