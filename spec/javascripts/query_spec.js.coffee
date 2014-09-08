@@ -130,3 +130,21 @@ describe 'Query', ->
       expect(User.where('email = ? AND password = ? AND name = ?', [null, null, 'boos']).count()).toBe(0)
       expect(User.where({ email: null, password: null, name: 'boo' }).count()).toBe(1)
       expect(User.where({ email: null, password: null, name: 'boos' }).count()).toBe(0)
+
+  it 'find', ->
+    u = User.create(name: 'boo1')
+    u2 = User.create(name: 'boo2')
+
+    expect(User.find({ name: 'boo1' }).name).toEqual('boo1')
+    expect(User.find({ name: 'crap' })).toBe(null)
+
+    u.destroy()
+    u2.destroy()
+
+  it 'findOrError', ->
+    u = User.create(name: 'boo1')
+    u2 = User.create(name: 'boo2')
+    expect(User.findOrError({ name: 'boo1' }).name).toEqual('boo1')
+    expect(-> User.findOrError({ name: 'crap' })).toThrow(new ARJS.Errors.RecordNotFound({ name: 'crap' }))
+    u.destroy()
+    u2.destroy()

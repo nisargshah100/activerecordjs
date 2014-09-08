@@ -1,3 +1,8 @@
+class RecordNotFound extends Error
+  constructor: (@args) ->
+    @message = "Couldn't find record: #{JSON.stringify(@args)}"
+  name: 'RecordNotFound'
+
 class RecordInvalid extends Error
 
   constructor: (@errors, @model = null) ->
@@ -7,3 +12,4 @@ class RecordInvalid extends Error
 
 ARJS.Errors = {}
 ARJS.Errors.RecordInvalid = RecordInvalid
+ARJS.Errors.RecordNotFound = RecordNotFound

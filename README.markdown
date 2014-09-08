@@ -338,6 +338,7 @@ ARJS supports many ways to fetch data from database.
 
 The following methods are supported:
 
+* find
 * all
 * where
 * first
@@ -350,6 +351,14 @@ The following methods are supported:
 * groupBy
 * having
 * count
+
+Find a single user
+
+```
+User.find({ email: 'a@a.com' })          # returns null / user
+User.findOrError({ email: 'a@a.com' })") # throws ARJS.Errors.RecordNotFound / user
+```
+
 
 Fetch all records:
 

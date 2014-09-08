@@ -121,6 +121,14 @@ ARJS.Query = {
     count: ->
       new QueryBuilder(@).count()
 
+    find: (attrs) ->
+      new QueryBuilder(@).where(attrs).first()
+
+    findOrError: (attrs) ->
+      val = @find(attrs)
+      throw new ARJS.Errors.RecordNotFound(attrs) if not val
+      val
+
     transaction: (fn) ->
       uniqueId = "a#{ARJS.UUID()}" # savepoint has to start with a letter
       try
