@@ -347,3 +347,56 @@ describe 'Model', ->
       v.save()
       expect(v.updateAttributes(email: 'second')).toBe(false)
       expect(v.errors().email[0]).toEqual('boo')
+
+  describe 'destroy all objects', ->
+    beforeEach ->
+      Foo.create(a: 1, b: 2)
+      Foo.create(a: 2, c: 3)
+      Foo.create(a: 3, b: 2)
+
+    describe 'destroyAll', ->
+      it 'suceeds and removes all', ->
+        expect(Foo.destroyAll()).toBe(true)
+        expect(Foo.count()).toBe(0)
+
+      it 'fails and doesnt remove any', ->
+        Foo.validates 'a', numericality: { greater_than: 2 }, on: 'destroy'
+        expect(Foo.destroyAll()).toBe(false)
+        expect(Foo.count()).toBe(3)
+
+    describe 'destroyAllOrError', ->
+      it 'suceeds and removes all', ->
+        Foo.destroyAllOrError()
+        expect(Foo.count()).toBe(0)
+
+      it 'fails and doesnt remove any', ->
+        Foo.validates 'a', numericality: { greater_than: 2, msg: 'foo' }, on: 'destroy'
+        try
+          Foo.destroyAllOrError()
+        catch e
+          expect(e.name).toEqual('RecordInvalid')
+          expect(e.errors).toEqual({ a: ['foo']})
+        expect(Foo.count()).toBe(3)
+
+  it 'deletes all objects', ->
+    class Apple extends ARJS.Model
+      @setup 'apples'
+      @schema (t) -> t.string('name')
+
+    class Bat extends ARJS.Model
+      @setup 'bats'
+      @schema (t) -> t.string('email')
+
+    Apple.create(name: 'one')
+    Apple.create(name: 'two')
+    Apple.create(name: 'three')
+
+    Bat.create(email: '1')
+    Bat.create(email: '2')
+    Bat.create(email: '3')
+
+    Apple.validates 'name', email: true, on: 'destroy'
+    Apple.deleteAll()
+
+    expect(Apple.count()).toBe(0)
+    expect(Bat.count()).toBe(3)

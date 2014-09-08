@@ -13,7 +13,7 @@ class QueryBuilder
   first: ->
     hash = ARJS.resultsToHash(ARJS.exec(@knex.first().toString()))
     if hash.length == 1
-      new @model(hash[0], _wrap: true)
+      new @model(hash[0])
     else
       null
 
@@ -25,7 +25,7 @@ class QueryBuilder
       vals = results[0].values
       if vals.length > 0
         result = ARJS.resultsToHash([{ columns: results[0].columns, values: [vals[vals.length-1]] }])
-        return new @model(result[0], _wrap: true)
+        return new @model(result[0])
 
     null
 
@@ -77,7 +77,7 @@ class QueryBuilder
   all: ->
     results = []
     for hash in ARJS.resultsToHash(ARJS.exec(@knex.toString()))
-      results.push(new @model(hash, _wrap: true))
+      results.push(new @model(hash))
     results
 
 ARJS.Query = {

@@ -10,10 +10,12 @@ class Model extends ARJS.Module
 
   # instance
 
-  constructor: (attrs, options = {}) ->
+  constructor: (attrs) ->
     @_define(attrs)
     
-    if options._wrap
+    if attrs && attrs.__id
+      @__id = attrs.__id
+      @_lastSaved = @_attrsInSchema(attrs)
     else
       @__id = ARJS.UUID() # is a unique id to find record from sql (internal use only) - auto added to schema
       @_lastSaved = null
@@ -189,6 +191,25 @@ class Model extends ARJS.Module
     m = @create(args)
     throw new ARJS.Errors.RecordInvalid(m.errors(), m) if m.isNew()
     m
+
+  @deleteAll = ->
+    ARJS.exec(@knex().del().toString())
+    true
+
+  @destroyAll = ->
+    try
+      @.transaction =>
+        for model in @.all()
+          result = model.destroy()
+          throw new Error('error') if result != true
+      return true
+    catch e
+      return false
+
+  @destroyAllOrError = ->
+    @.transaction =>
+      for model in @.all()
+        result = model.destroyOrError()
 
   @isTableCreated = ->
     result = @exec("PRAGMA table_info(#{@tableName})")
