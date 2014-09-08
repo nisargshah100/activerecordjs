@@ -114,6 +114,28 @@ class User
 
 This will add created_at & updated_at to your schema and add callbacks that update those values on create / update.
 
+#### Delete all models
+
+To delete all models, there is destroyAll, destroyAllOrError & deleteAll
+
+destroy methods call all the hooks before deleting. If you have a validation on destroy, calling destroy would run the validation.
+
+```
+class User
+  @setup 'users'
+  @schema (t) -> t.string('name')
+  @validates 'name', presence: true, on: 'delete'
+
+u = User.create()
+
+User.destroyAll()           # returns false and doesn't destroy anything since one failed validation
+
+User.destroyAllOrError()    # throws a RecordInvalid exception and doesn't delete anything
+
+User.deleteAll()           # deletes all users without calling any callbacks
+  
+```
+
 ### Hooks
 
 Hooks allow you run custom code at certain points in model execution. The following hooks are available:
