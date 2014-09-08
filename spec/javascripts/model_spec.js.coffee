@@ -423,6 +423,11 @@ describe 'Model', ->
     expect(Foo.count()).toBe(1)
     expect(Foo.first().attrs()).toEqual({ a: 3, b: 2 })
 
+    Foo.create(a: 100)
+    f = Foo.where({ a: 100 }).first()
+    expect(f.a).toBe(100)
+    expect(f.b).toBe(null)
+
   describe 'unique attribute', ->
     it 'on single attribute', ->
       Foo.validates 'a', uniqueness: true
