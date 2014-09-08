@@ -71,6 +71,9 @@ class QueryBuilder
     @knex.having(q, op, val)
     @
 
+  count: ->
+    ARJS.exec(@knex.count().toString())[0].values[0][0]
+
   all: ->
     results = []
     for hash in ARJS.resultsToHash(ARJS.exec(@knex.toString()))
@@ -113,6 +116,12 @@ ARJS.Query = {
 
     having: (q, op, val) ->
       new QueryBuilder(@).having(q, op, val)
+
+    count: ->
+      new QueryBuilder(@).count()
+
+    transaction: (fn) ->
+
   }
 
   instanceMethods: {

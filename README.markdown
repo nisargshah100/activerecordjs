@@ -72,7 +72,7 @@ user.reload()
 #### update attributes is also available
 
 ```
-user.update_attributes({ email: 'c@c.com', password: 'boo' })
+user.updateAttributes({ email: 'c@c.com', password: 'boo' })
 ```
 
 #### get hash from model
@@ -117,7 +117,7 @@ class User extends ARJS.Model
     t.string('token')
   
   @generateToken: ->
-    @update_attributes({ token: ARJS.UUID() })
+    @updateAttributes({ token: ARJS.UUID() })
   
   # has to be below the method declaration since JS can't find it otherwise
   @afterCreate 'generateToken'
@@ -137,7 +137,7 @@ This would be an infinite loop:
 
 ```
   @generateToken: ->
-    @update_attributes({ token: ARJS.UUID() })
+    @updateAttributes({ token: ARJS.UUID() })
 
   @afterSave 'generateToken'
 ```
@@ -148,7 +148,7 @@ So how you get past this? You can update / save by disabling hooks
 
 ```
   @afterSave ->
-    @update_attributes({ blah: 1 }, { runHooks: false })
+    @updateAttributes({ blah: 1 }, { runHooks: false })
 ```
 
 ### Validation

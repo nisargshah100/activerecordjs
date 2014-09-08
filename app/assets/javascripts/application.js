@@ -11,6 +11,7 @@
 // about supported directives.
 //
 //= require_self
+//= require bluebird
 //= require sql
 //= require knex
 //= require activerecordjs/arjs

@@ -40,7 +40,11 @@ class Model extends ARJS.Module
       res = @_update(options)
     res
 
-  update_attributes: (attrs, options = {}) ->
+  saveOrError: (options = {}) ->
+    res = @save(options)
+    throw new Error('unable to save') if res != true
+
+  updateAttributes: (attrs, options = {}) ->
     @_define(attrs)
     @_update(options)
 
@@ -179,10 +183,10 @@ class Model extends ARJS.Module
   @_setupTimestamps = ->
     @afterCreate ->
       t = new Date()
-      @update_attributes(created_at: t, { runHooks: false })
-      @update_attributes(updated_at: t, { runHooks: false })
+      @updateAttributes(created_at: t, { runHooks: false })
+      @updateAttributes(updated_at: t, { runHooks: false })
 
     @afterUpdate ->
-      @update_attributes(updated_at: new Date(), { runHooks: false })
+      @updateAttributes(updated_at: new Date(), { runHooks: false })
 
 window.ARJS.Model = Model

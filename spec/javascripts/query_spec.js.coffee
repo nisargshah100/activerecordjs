@@ -62,3 +62,12 @@ describe 'Query', ->
     expect(u.length).toBe(1)
     expect(u[0].password).toEqual('boo')
     user.destroy()
+
+  it 'count', ->
+    expect(User.count()).toBe(100)
+    expect(User.where('email = ?', 'a1@a.com').count()).toBe(1)
+
+  # it 'transaction', ->
+  #   User.transaction ->
+  #     User.create({ email: 'boo' })
+  #     User.create({ email: 'blah' })

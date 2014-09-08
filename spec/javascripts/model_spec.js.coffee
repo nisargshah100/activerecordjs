@@ -100,7 +100,7 @@ describe 'Model', ->
     it 'with update attributes', ->
       foo = new Foo(a: 1)
       foo.save()
-      foo.update_attributes(a: 2, b: 3)
+      foo.updateAttributes(a: 2, b: 3)
       foo._refresh()
       expect(foo.a).toBe(2)
       expect(foo.b).toBe(3)
@@ -139,7 +139,7 @@ describe 'Model', ->
 
       # updates the token in a hook
       Boo.afterSave ->
-        @update_attributes({ token: ARJS.UUID() }, runHooks: false)
+        @updateAttributes({ token: ARJS.UUID() }, runHooks: false)
 
       it 'updates the token in after save hook', ->
         boo = new Boo(name: 'Cool')
@@ -181,7 +181,7 @@ describe 'Model', ->
       f.name = 'apples3'
       f.save()
       expect(x).toBe(1)
-      f.update_attributes(name: 'apple2')
+      f.updateAttributes(name: 'apple2')
       expect(x).toBe(2)
 
     it 'after update gets called', ->
@@ -190,7 +190,7 @@ describe 'Model', ->
       f = new Boo(name: 'apples')
       f.save()
       expect(x).toBe(0)
-      f.update_attributes(name: 'apples2')
+      f.updateAttributes(name: 'apples2')
       expect(x).toBe(1)
 
   describe 'validations', ->
@@ -269,7 +269,7 @@ describe 'Model', ->
       v = new Voo()
       expect(v.save()).toBe(false)
       expect(v.errors()['email'][0]).toEqual('is required')
-      v.update_attributes(email: 'hi')
+      v.updateAttributes(email: 'hi')
       expect(v.save()).toBe(false)
       expect(v.errors()['email'][0]).toEqual('must be an email address')
       expect(v.email).toEqual('hi')
@@ -311,5 +311,5 @@ describe 'Model', ->
 
       v = new Voo(email: 'good')
       v.save()
-      expect(v.update_attributes(email: 'second')).toBe(false)
+      expect(v.updateAttributes(email: 'second')).toBe(false)
       expect(v.errors().email[0]).toEqual('boo')
