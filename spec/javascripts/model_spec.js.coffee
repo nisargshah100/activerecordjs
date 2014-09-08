@@ -400,3 +400,13 @@ describe 'Model', ->
 
     expect(Apple.count()).toBe(0)
     expect(Bat.count()).toBe(3)
+
+  it 'error fails, then save and remove errors', ->
+    Foo.validates 'a', presence: true
+    f = new Foo(b: 2)
+    expect(f.save()).toBe(false)
+    expect(f.hasErrors()).toBe(true)
+    f.a = 1
+    expect(f.save()).toBe(true)
+    expect(f.hasErrors()).toBe(false)
+    expect(f.errors()).toEqual({})
