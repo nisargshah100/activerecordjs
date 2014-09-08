@@ -42,7 +42,7 @@ class Model extends ARJS.Module
 
   saveOrError: (options = {}) ->
     res = @save(options)
-    throw new Error('saveError') if res != true
+    throw new ARJS.Errors.RecordInvalid(@errors()) if res != true
 
   updateAttributes: (attrs, options = {}) ->
     @_define(attrs)
@@ -50,7 +50,7 @@ class Model extends ARJS.Module
 
   updateAttributesOrError: (attrs, options = {}) ->
     res = @updateAttributes(attrs, options)
-    throw new Error('updateError') if res != true
+    throw new ARJS.Errors.RecordInvalid(@errors()) if res != true
 
   reload: ->
     @_refresh()
@@ -64,6 +64,11 @@ class Model extends ARJS.Module
 
     ARJS.exec(@_knex().where({ __id: @__id }).del().toString())
     @_callAllHooks('afterDestroy', options)
+    true
+
+  destroyOrError: (options = {}) ->
+    if @destroy(options) == false
+      throw new ARJS.Errors.RecordInvalid(@errors())
     true
 
   # refresh the values & also sets the last saved hash since its straight from the database!
@@ -179,6 +184,11 @@ class Model extends ARJS.Module
     user = new @(args)
     user.save()
     user
+
+  @createOrError = (args) ->
+    m = @create(args)
+    throw new ARJS.Errors.RecordInvalid(m.errors()) if m.isNew()
+    m
 
   @isTableCreated = ->
     result = @exec("PRAGMA table_info(#{@tableName})")

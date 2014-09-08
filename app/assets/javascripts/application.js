@@ -16,6 +16,7 @@
 //= require knex
 //= require activerecordjs/arjs
 //= require activerecordjs/module
+//= require activerecordjs/errors
 //= require activerecordjs/hooks
 //= require activerecordjs/validation
 //= require activerecordjs/query

@@ -121,7 +121,15 @@ ARJS.Query = {
       new QueryBuilder(@).count()
 
     transaction: (fn) ->
-
+      uniqueId = "a#{ARJS.UUID()}" # savepoint has to start with a letter
+      try
+        ARJS.exec("SAVEPOINT #{uniqueId}")
+        fn()
+        ARJS.exec("RELEASE SAVEPOINT #{uniqueId}")
+        return true
+      catch e
+        ARJS.exec("ROLLBACK TO #{uniqueId}")
+        throw e
   }
 
   instanceMethods: {

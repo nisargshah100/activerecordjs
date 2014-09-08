@@ -55,7 +55,19 @@ user.save()
 In active record, using `!` on save would raise an error instead of returning a boolean. Same can be achieved through:
 
 ```
-user.saveOrError()   # throws error with body 'saveError'
+user.saveOrError()
+```
+
+Above statement would throw a ARJS.Errors.RecordInvalid exception. It can be accessed like:
+
+```
+try
+  user.saveOrError()
+catch e
+  if e.name == 'RecordInvalid'
+    console.log e.errors         # handle this exception
+  else
+    throw e                      # some other error - lets throw it up further
 ```
 
 

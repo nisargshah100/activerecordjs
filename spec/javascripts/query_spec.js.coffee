@@ -67,7 +67,52 @@ describe 'Query', ->
     expect(User.count()).toBe(100)
     expect(User.where('email = ?', 'a1@a.com').count()).toBe(1)
 
-  # it 'transaction', ->
-  #   User.transaction ->
-  #     User.create({ email: 'boo' })
-  #     User.create({ email: 'blah' })
+  describe 'transaction', ->
+    Txn = null
+
+    beforeEach ->
+      class Txn extends ARJS.Model
+        @setup 'txns'
+        @schema (t) -> t.string('name')
+        @validates 'name', presence: true
+
+    afterEach ->
+      ARJS.exec('drop table txns')
+
+    it 'works', ->
+      Txn.transaction ->
+        Txn.createOrError(name: 'awesome')
+        Txn.createOrError(name: 'boo')
+
+      expect(Txn.count()).toBe(2)
+
+      try
+        Txn.transaction =>
+          Txn.createOrError(name: 'awesome')
+          expect(Txn.count()).toBe(3)
+          Txn.createOrError()
+      catch e
+        expect(e.name).toEqual('RecordInvalid')
+
+      expect(Txn.count()).toBe(2)
+
+    it 'supports nested transactions', ->
+      try
+        Txn.transaction ->
+          Txn.createOrError(name: 'great!')
+          try
+            Txn.transaction ->
+              Txn.createOrError(name: 'foo')
+              Txn.createOrError()
+          catch e
+            expect(e.name).toEqual('RecordInvalid')
+
+      expect(Txn.count()).toBe(1)
+      expect(Txn.first().name).toEqual('great!')
+
+    it 'transaction throws error with messages', ->
+      try
+        Txn.transaction ->
+          Txn.createOrError()
+      catch e
+        expect(e.errors).toEqual({ name: ['is required']})
