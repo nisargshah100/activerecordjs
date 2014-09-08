@@ -410,3 +410,11 @@ describe 'Model', ->
     expect(f.save()).toBe(true)
     expect(f.hasErrors()).toBe(false)
     expect(f.errors()).toEqual({})
+
+  it 'find object, save it and refetch the changes', ->
+    Foo.create(a: 1, b: 2)
+    foo = Foo.where('a = ?', 1).where('b = ?', 2).first()
+    foo.a = 3
+    foo.save()
+    expect(Foo.count()).toBe(1)
+    expect(Foo.first().attrs()).toEqual({ a: 3, b: 2 })
