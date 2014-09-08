@@ -66,6 +66,7 @@ try
 catch e
   if e.name == 'RecordInvalid'
     console.log e.errors         # handle this exception
+    e.model.destroy()            # model refers to the instance that failed
   else
     throw e                      # some other error - lets throw it up further
 ```

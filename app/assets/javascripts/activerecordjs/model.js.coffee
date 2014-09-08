@@ -42,7 +42,7 @@ class Model extends ARJS.Module
 
   saveOrError: (options = {}) ->
     res = @save(options)
-    throw new ARJS.Errors.RecordInvalid(@errors()) if res != true
+    throw new ARJS.Errors.RecordInvalid(@errors(), @) if res != true
 
   updateAttributes: (attrs, options = {}) ->
     @_define(attrs)
@@ -50,7 +50,7 @@ class Model extends ARJS.Module
 
   updateAttributesOrError: (attrs, options = {}) ->
     res = @updateAttributes(attrs, options)
-    throw new ARJS.Errors.RecordInvalid(@errors()) if res != true
+    throw new ARJS.Errors.RecordInvalid(@errors(), @) if res != true
 
   reload: ->
     @_refresh()
@@ -68,7 +68,7 @@ class Model extends ARJS.Module
 
   destroyOrError: (options = {}) ->
     if @destroy(options) == false
-      throw new ARJS.Errors.RecordInvalid(@errors())
+      throw new ARJS.Errors.RecordInvalid(@errors(), @)
     true
 
   # refresh the values & also sets the last saved hash since its straight from the database!
@@ -187,7 +187,7 @@ class Model extends ARJS.Module
 
   @createOrError = (args) ->
     m = @create(args)
-    throw new ARJS.Errors.RecordInvalid(m.errors()) if m.isNew()
+    throw new ARJS.Errors.RecordInvalid(m.errors(), m) if m.isNew()
     m
 
   @isTableCreated = ->

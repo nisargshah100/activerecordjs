@@ -116,3 +116,4 @@ describe 'Query', ->
           Txn.createOrError()
       catch e
         expect(e.errors).toEqual({ name: ['is required']})
+        expect(e.model.__id).not.toBe(undefined)

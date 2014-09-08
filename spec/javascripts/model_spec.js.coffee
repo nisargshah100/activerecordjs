@@ -87,6 +87,11 @@ describe 'Model', ->
       expect(foo.save()).toBe(false)
       expect(-> foo.saveOrError()).toThrow(new ARJS.Errors.RecordInvalid({a: ['is required']}))
 
+      try
+        foo.saveOrError()
+      catch e
+        expect(e.model).toBe(foo)
+
   it 'destroy a object', ->
     foo = new Foo(a: 1, b: 2)
     expect(foo.destroy()).toBe(true)
@@ -96,6 +101,11 @@ describe 'Model', ->
     Foo.validates 'a', presence: true, on: 'destroy'
     foo = Foo.createOrError()
     expect(-> foo.destroyOrError()).toThrow(new ARJS.Errors.RecordInvalid({a: ['is required']}))
+
+    try
+      foo.destroyOrError()
+    catch e
+      expect(e.model).toBe(foo)
 
   describe 'updates a object', ->
 
@@ -122,7 +132,12 @@ describe 'Model', ->
       foo = new Foo(a: 1)
       foo.save()
       expect(-> foo.updateAttributesOrError(a: null)).toThrow(new ARJS.Errors.RecordInvalid(a: ['is required']))
-
+      
+      try
+        foo.updateAttributesOrError(a: null)
+      catch e
+        expect(e.model).toBe(foo)
+      
 
   describe 'hooks', ->
     Boo = null
