@@ -8,7 +8,7 @@ class QueryBuilder
     return @ if !q?
     params = [params] if !(params instanceof Array)
     q = ARJS.knex.raw(q, params) if typeof(q) == 'string'
-    @knex = @knex.where(q)
+    @knex = @knex.where(q, params)
     @
 
   first: ->
@@ -35,6 +35,10 @@ class QueryBuilder
     @knex.distinct(attrs)
     @
 
+  select: (attrs...) ->
+    @knex.select(attrs)
+    @
+
   limit: (count) ->
     @knex.limit(count)
     @
@@ -47,11 +51,16 @@ class QueryBuilder
     models = @all()
     results = []
     
-    for model in models
-      val = []
-      for attr in attrs
-        val.push model[attr]
-      results.push(val)
+    if attrs.length == 1
+      for model in models
+        for attr in attrs
+          results.push model[attr]
+    else
+      for model in models
+        val = []
+        for attr in attrs
+          val.push model[attr]
+        results.push(val)
 
     results
 
@@ -80,6 +89,9 @@ class QueryBuilder
     for hash in ARJS.resultsToHash(ARJS.exec(@knex.toString()))
       results.push(new @model(hash))
     results
+
+  toString: ->
+    @knex.toString()
 
 ARJS.Query = {
 
@@ -128,6 +140,9 @@ ARJS.Query = {
       val = @find(attrs)
       throw new ARJS.Errors.RecordNotFound(attrs) if not val
       val
+
+    select: (attrs...) ->
+      new QueryBuilder(@).select(attrs)
 
     transaction: (fn) ->
       uniqueId = "a#{ARJS.UUID()}" # savepoint has to start with a letter

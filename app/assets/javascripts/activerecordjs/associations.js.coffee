@@ -1,6 +1,8 @@
 class Relationship
 
   constructor: (@foreignName, @foreignKey, @foreignClassName, @myKey, @options) ->
+    @foreignKey = @foreignKey.toLowerCase()
+    @myKey = @myKey.toLowerCase()
 
   foreignClass: ->
     klass = ARJS._models[@foreignClassName]
@@ -14,15 +16,17 @@ class BelongsToRelationship extends Relationship
     myModel[@myKey] ||= foreignModel[@foreignKey] if foreignModel?
     @foreignClass().where("#{@foreignKey} = ?", myModel[@myKey]).first()
 
-  setup: (name, value, model) ->
-    # model[name] = 
-
-
 class HasManyRelationship extends Relationship
 
   called: (myModel, foreignModels) ->
     =>
-      @foreignClass().where("#{@foreignKey} = ?", myModel[@myKey])
+      if @options.through
+        association = myModel.getAssociationByName(@options.through)
+        throw new Error('unable to find association: ' + options.through) if !association?
+        ids = association.called(myModel)().pluck(@foreignKey)
+        @foreignClass().where("#{association.myKey} IN (?)", ids)
+      else
+        @foreignClass().where("#{@foreignKey} = ?", myModel[@myKey])
 
 ARJS.Associations = {
 
@@ -30,7 +34,6 @@ ARJS.Associations = {
 
     _setupAssociations: ->
       @_associations = {}
-      # @_associationsByKey = {}
 
     belongsTo: (foreignName, options = {}) ->
       myKey = options.key || "#{foreignName}_id"
@@ -41,7 +44,10 @@ ARJS.Associations = {
     hasMany: (foreignName, options = {}) ->
       myKey = options.key || "id"
       foreignClassName = options.className || ARJS.Inflection.classify(foreignName)
-      foreignKey = options.foreignKey || "#{ARJS.Inflection.singularize(@.name)}_id"
+      if options.through
+        foreignKey = options.foreignKey || "#{ARJS.Inflection.singularize(foreignName)}_id"
+      else
+        foreignKey = options.foreignKey || "#{ARJS.Inflection.singularize(@.name)}_id"
       @_associations[foreignName] = new HasManyRelationship(foreignName, foreignKey, foreignClassName, myKey, options)
   }
 

@@ -420,3 +420,81 @@ Count
 User.count()
 User.where('email = ?', 'foo').count()
 ```
+
+## Associations
+
+We support many different kinds of associations. These incude:
+
+* belongsTo
+   * key
+   * foreignKey
+   * className
+* hasMany
+   * key
+   * className
+   * foreignKey
+   * through
+
+### Belongs To
+
+If the current object belongs to another one and has an id for the other object, use this. Example/ book belongs to author. 
+
+```
+class Book
+  @setup 'books'
+  @belongsTo 'author'
+  
+  @schema (t) ->
+  	t.string('name')
+  	t.belongsTo('author_id')
+```
+
+Thats it. We assume a lot of stuff but everything is customizable. This relationship can be used like:
+
+```
+Book.first().author
+```
+
+The code above assumes you have a `author_id` key in the schema. You can change that using `key`
+
+```
+@belongsTo 'author', key: 'person_id'
+```
+
+It also assumes that we should look at author's `id`. That can be customized using:
+
+```
+@belongsTo 'author', key: 'person_id', foreignKey: '_id', className: 'User'
+```
+
+### Has Many
+
+Opposite of belongs to relationship. The id attribute is on the foreign table. Example/
+
+```
+class Author
+  @setup 'authors'
+  @hasMany 'books'
+  
+  @schema (t) ->
+    t.integer('my_id')
+    t.string('name')
+```
+
+This can be accessed via:
+
+```
+Author.first().books()            # notice its a method unlike belongs to
+```
+
+We dont run a query to database when you use the above statement. It just returns a query builder so you can add more conditions to it. 
+
+```
+Author.first().books().where({ name: 'foo' }).orderBy('created_at DESC').all()
+```
+
+Again, just using `@hasMany 'books'` assumes a lot of stuff. That is customizable through `key`, `foreignKey`, and `className`
+
+```
+@hasMany 'books', key: 'my_id', foreignKey: 'user_id', className: 'Book'
+```

@@ -1,14 +1,7 @@
 class User < ActiveRecord::Base
 
-  validates :email, :uniqueness => true
-  validates :age, :presence => true, :length => { :minimum => 3 }
-
-  before_save :bs
-  after_save :as
-  before_create :bc
-  after_create :ac
-  before_update :bu
-  after_update :au
+  has_many :user_accounts
+  has_many :accounts, :through => :user_accounts
 
   def bs
     puts '-----------------  before save called --------------------'

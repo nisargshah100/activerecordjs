@@ -148,3 +148,7 @@ describe 'Query', ->
     expect(-> User.findOrError({ name: 'crap' })).toThrow(new ARJS.Errors.RecordNotFound({ name: 'crap' }))
     u.destroy()
     u2.destroy()
+
+  it 'select', ->
+    expect(User.first().password).toEqual('abcdef')
+    expect(User.select('email').first().password).toBe(null)
