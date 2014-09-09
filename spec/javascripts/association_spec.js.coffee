@@ -149,11 +149,9 @@ describe 'Associations', ->
       PersonAccount.create(person: p2, account: a1)
       PersonAccount.create(person: p3, account: a1)
 
-      console.log a1.persons().all()
-
-      # expect(p1.accounts().count()).toBe(1)
-      # expect(p2.accounts().count()).toBe(1)
-      # expect(p3.accounts().count()).toBe(1)
-      # expect(a1.persons().count()).toBe(3)
-      # expect(a2.persons().count()).toBe(0)
+      expect(p1.accounts().count()).toBe(1)
+      expect(p2.accounts().count()).toBe(1)
+      expect(p3.accounts().count()).toBe(1)
+      expect(a1.persons().count()).toBe(3)
+      expect(a2.persons().count()).toBe(0)
       expect(a3.persons().count()).toBe(0)

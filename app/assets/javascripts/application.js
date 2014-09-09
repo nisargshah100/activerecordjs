@@ -13,7 +13,6 @@
 //= require_self
 //= require sql
 //= require knex
-//= require squel
 //= require activerecordjs/arjs
 //= require activerecordjs/inflection
 //= require activerecordjs/module

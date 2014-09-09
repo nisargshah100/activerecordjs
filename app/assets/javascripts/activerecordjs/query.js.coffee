@@ -4,9 +4,8 @@ class QueryBuilder
     @knex = @model.knex()
     @
 
-  where: (q, params) ->
+  where: (q, params...) ->
     return @ if !q?
-    params = [params] if !(params instanceof Array)
     q = ARJS.knex.raw(q, params) if typeof(q) == 'string'
     @knex = @knex.where(q, params)
     @
@@ -118,8 +117,8 @@ ARJS.Query = {
     first: ->
       new QueryBuilder(@).first()
 
-    where: (q, params) ->
-      new QueryBuilder(@).where(q, params)
+    where: (q, params...) ->
+      new QueryBuilder(@).where(q, params...)
 
     all: ->
       new QueryBuilder(@).all()
