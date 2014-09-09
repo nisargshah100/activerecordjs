@@ -1,4 +1,4 @@
-# NOT READY FOR USE YET
+# Use with caution - there may be bugs still!
 
 # ActiveRecordJS
 
