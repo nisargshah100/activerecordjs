@@ -498,3 +498,39 @@ Again, just using `@hasMany 'books'` assumes a lot of stuff. That is customizabl
 ```
 @hasMany 'books', key: 'my_id', foreignKey: 'user_id', className: 'Book'
 ```
+
+#### Through Association
+
+Through allows you to setup a many to many relationship. It goes through another model to the target model. 
+
+Example:
+
+```
+class User extends ARJS.Model
+  @setup 'users'
+  @hasMany 'user_accounts'
+  @hasMany 'accounts', through: 'user_accounts'
+  @schema (t) ->
+    t.string('email')
+
+class UserAccount extends ARJS.Model
+  @setup 'user_accounts'
+  @belongsTo 'user'
+  @belongsTo 'account'
+  @schema (t) ->
+    t.integer('user_id')
+    t.integer('account_id)
+
+class Account extends ARJS.Model
+  @setup 'accounts'
+  @schema (t) ->
+    t.string('name')
+
+```
+
+Using this, you can query records like:
+
+```
+User.first().accounts().all()       # fetch all records
+User.first().accounts().where('name = ?', 'apples').all()    # fetch all my accounts with the name apples
+```
