@@ -57,7 +57,7 @@ ARJS.Associations = {
     # there is an association defined & an attr matched it. 
     _defineAssociations: (attrs = {}) ->
       return if ARJS.isObjectEmpty(@getAssociations())
-
+      
       for name, association of @getAssociations()
         @[name] = association.called(@, attrs[name])
 
