@@ -14,9 +14,11 @@
 //= require sql
 //= require knex
 //= require activerecordjs/arjs
+//= require activerecordjs/inflection
 //= require activerecordjs/module
 //= require activerecordjs/errors
 //= require activerecordjs/hooks
+//= require activerecordjs/associations
 //= require activerecordjs/validation
 //= require activerecordjs/query
 //= require activerecordjs/model

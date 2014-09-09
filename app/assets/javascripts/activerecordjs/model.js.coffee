@@ -7,12 +7,12 @@ class Model extends ARJS.Module
   @include(ARJS.Validation.instanceMethods)
   @extend(ARJS.Query.classMethods)
   @include(ARJS.Query.instanceMethods)
+  @extend(ARJS.Associations.classMethods)
+  @include(ARJS.Associations.instanceMethods)
 
   # instance
 
   constructor: (attrs) ->
-    @_define(attrs)
-    
     if attrs && attrs.__id
       @__id = attrs.__id
       @_lastSaved = @_attrsInSchema(attrs)
@@ -20,6 +20,7 @@ class Model extends ARJS.Module
       @__id = ARJS.UUID() # is a unique id to find record from sql (internal use only) - auto added to schema
       @_lastSaved = null
     
+    @_define(attrs)
     @_callAllHooks('afterInitialize')
     @
 
@@ -106,7 +107,7 @@ class Model extends ARJS.Module
 
   _update: (options) ->
     da = @_dirtyAttributes()
-    return if da.length == 0
+    return false if da.length == 0
 
     # lets do some validation!
     @_callAllHooks('beforeValidation', options)
@@ -133,6 +134,8 @@ class Model extends ARJS.Module
     @[k] = v for k, v of x
     for x in @.constructor.keys
       @[x] ||= null
+
+    @_defineAssociations(attrs)
 
   # verifies the attributes are in schema
   _attrsInSchema: (attrs) ->
@@ -167,6 +170,8 @@ class Model extends ARJS.Module
     @_setupHooks()
     @_setupValidations()
     @_setupTimestamps() if options.timestamps
+    @_setupAssociations()
+    ARJS._models[@.name] = @
 
   @schema = (cb) ->
     ARJS.setupTable @tableName, (t) =>

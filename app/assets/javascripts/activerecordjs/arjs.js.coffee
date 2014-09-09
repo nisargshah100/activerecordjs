@@ -14,6 +14,13 @@ ARJS.UUID = (length=64) ->
   id += Math.random().toString(36).substr(2) while id.length < length
   id.substr 0, length
 
+ARJS._models = {}
+
+ARJS.isObjectEmpty = (obj) ->
+  for k, v of obj
+    return false
+  return true
+
 ARJS.resultsToHash = (results) ->
   return [] if !results? || results.length == 0
   keys = results[0].columns
