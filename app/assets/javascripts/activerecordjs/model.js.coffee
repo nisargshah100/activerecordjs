@@ -189,13 +189,13 @@ class Model extends ARJS.Module
     else
       throw new Error('Unable to create the table')
 
-  @create = (args) ->
+  @create = (args, options={}) ->
     user = new @(args)
-    user.save()
+    user.save(options)
     user
 
-  @createOrError = (args) ->
-    m = @create(args)
+  @createOrError = (args, options={}) ->
+    m = @create(args, options)
     throw new ARJS.Errors.RecordInvalid(m.errors(), m) if m.isNew()
     m
 

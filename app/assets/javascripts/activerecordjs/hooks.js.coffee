@@ -49,7 +49,9 @@ ARJS.Hooks = {
   instanceMethods: {
 
     _callAllHooks: (name, options={}) ->
-        cb.call(@) for cb in @.constructor.hooks[name] if options.runHooks != false
+      if options.runHooks != false
+        for cb in @.constructor.hooks[name]
+          cb.call(@, options)
 
   }
 }

@@ -147,18 +147,19 @@ describe 'Model', ->
     Boo = null
     str = ''
 
-    class Boo extends ARJS.Model
-      @setup 'boos'
-      @schema (t) -> 
-        t.string('name')
-        t.string('token')
+    beforeEach ->
+      ARJS.exec('drop table IF EXISTS boos')
+      class Boo extends ARJS.Model
+        @setup 'boos'
+        @schema (t) -> 
+          t.string('name')
+          t.string('token')
 
     describe 'before save', ->
 
-      Boo.bs = -> str += @name
-      Boo.beforeSave 'bs'
-
       beforeEach ->
+        Boo.bs = -> str += @name
+        Boo.beforeSave 'bs'
         str = ''
 
       it 'assigns the hook properly', ->
@@ -175,15 +176,18 @@ describe 'Model', ->
 
     describe 'after save', ->
 
-      # updates the token in a hook
-      Boo.afterSave ->
-        @updateAttributes({ token: ARJS.UUID() }, runHooks: false)
+      beforeEach ->
+        Boo.afterSave (options) ->
+          @updateAttributes({ token: ARJS.UUID() }, runHooks: false)
+          options.callback()
 
       it 'updates the token in after save hook', ->
+        x = 0
         boo = new Boo(name: 'Cool')
         expect(boo.token).toEqual(null)
-        boo.save()
+        boo.save(callback: -> x += 1)
         expect(boo.token).not.toEqual(null)
+        expect(x).toBe(1)
 
     it 'before create', ->
       x = 0
