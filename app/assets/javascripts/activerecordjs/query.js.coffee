@@ -11,7 +11,7 @@ class QueryBuilder
     @
 
   first: ->
-    hash = ARJS.resultsToHash(ARJS.exec(@knex.first().toString()))
+    hash = ARJS.resultsToHash(ARJS.exec(@_queryParser(@knex.first().toString())))
     if hash.length == 1
       new @model(hash[0])
     else
@@ -20,7 +20,7 @@ class QueryBuilder
   last: ->
     # this is higher performance than just calling all since it only wraps the last
     # object and not all objects
-    results = ARJS.exec(@knex.toString())
+    results = ARJS.exec(@_queryParser(@knex.toString()))
     if results.length == 1
       vals = results[0].values
       if vals.length > 0
@@ -81,16 +81,19 @@ class QueryBuilder
     @
 
   count: ->
-    ARJS.exec(@knex.count().toString())[0].values[0][0]
+    ARJS.exec(@_queryParser(@knex.count().toString()))[0].values[0][0]
 
   all: ->
     results = []
-    for hash in ARJS.resultsToHash(ARJS.exec(@knex.toString()))
+    for hash in ARJS.resultsToHash(ARJS.exec(@_queryParser(@knex.toString())))
       results.push(new @model(hash))
     results
 
   toString: ->
-    @knex.toString()
+    @_queryParser(@knex.toString())
+
+  _queryParser: (query) ->
+    query.replace(/\= NULL/g, 'is NULL')
 
 ARJS.Query = {
 
@@ -133,11 +136,12 @@ ARJS.Query = {
       new QueryBuilder(@).count()
 
     find: (attrs) ->
+      return null if !attrs?
       new QueryBuilder(@).where(attrs).first()
 
     findOrError: (attrs) ->
       val = @find(attrs)
-      throw new ARJS.Errors.RecordNotFound(attrs) if not val
+      throw new ARJS.Errors.RecordNotFound(attrs) if not val || not attrs
       val
 
     select: (attrs...) ->
