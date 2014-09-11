@@ -22,6 +22,18 @@ ARJS.Hooks = {
     afterUpdate: (name_or_cb) ->
       @hooks['afterUpdate'].push(@_getHookCallback(name_or_cb))
 
+    beforeValidation: (name_or_cb) ->
+      @hooks['beforeValidation'].push(@_getHookCallback(name_or_cb))
+
+    afterValidation: (name_or_cb) ->
+      @hooks['afterValidation'].push(@_getHookCallback(name_or_cb))
+
+    beforeDestroy: (name_or_cb) ->
+      @hooks['beforeDestroy'].push(@_getHookCallback(name_or_cb)) 
+
+    afterDestroy: (name_or_cb) ->
+      @hooks['afterDestroy'].push(@_getHookCallback(name_or_cb)) 
+
     _getHookCallback: (name) ->
       if typeof(name) == 'string'
         cb = @[name]

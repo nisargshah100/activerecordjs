@@ -3,6 +3,10 @@ class User < ActiveRecord::Base
   has_many :user_accounts
   has_many :accounts, :through => :user_accounts
 
+  validates :email, :presence => true
+
+  before_create :bc
+
   def bs
     puts '-----------------  before save called --------------------'
   end

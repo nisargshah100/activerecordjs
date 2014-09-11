@@ -75,7 +75,7 @@ describe 'Model', ->
     it 'saves the model', ->
       foo = new Foo(a:1, b:2)
       foo.save()
-      foo.save() # doesn't do anything second time! no dirty attributes
+      foo.save()
       foo.c = 3  # random attributes dont get saved
       foo.save()
       delete foo.c
@@ -295,12 +295,14 @@ describe 'Model', ->
       Voo.validates 'name', email: { msg: 'lala' }, presence: true
       v = new Voo()
       expect(v.hasErrors()).toBe(false)
+      v._setupValidation()
       v._validate('create')
       expect(v.errorKeys()).toEqual(['name', 'email'])
       expect(v.errors()['email'][0]).toEqual('is required')
       expect(v.errors()['name'][0]).toEqual('is required')
 
       v.name = 'blah'
+      v._setupValidation()
       v._validate('create')
       expect(v.errors()['name'].length).toBe(1)
       expect(v.errors()['name'][0]).toEqual('lala')
@@ -339,22 +341,14 @@ describe 'Model', ->
       v.save()
       expect(v.destroy()).toBe(true)
 
-    it 'can add error on before create', ->
-      Voo.beforeCreate ->
+    it 'can add error on before validation', ->
+      Voo.beforeValidation ->
         @addError('email', 'something broke!')
 
       v = new Voo(email: 'lol')
       expect(v.save()).toBe(false)
+      console.log v.errors()
       expect(v.errors().email[0]).toEqual('something broke!')
-
-    it 'can add error on before update', ->
-      Voo.beforeUpdate ->
-        @addError('email', 'boo')
-
-      v = new Voo(email: 'good')
-      v.save()
-      expect(v.updateAttributes(email: 'second')).toBe(false)
-      expect(v.errors().email[0]).toEqual('boo')
 
   describe 'destroy all objects', ->
     beforeEach ->

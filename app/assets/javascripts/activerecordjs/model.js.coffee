@@ -88,14 +88,15 @@ class Model extends ARJS.Module
 
   _create: (options) ->
     # lets do some validation!
+    @_setupValidation()
     @_callAllHooks('beforeValidation', options)
     @_validate('create')
     @_callAllHooks('afterValidation', options)
 
+    return false if @hasErrors()
+
     @_callAllHooks('beforeSave', options)
     @_callAllHooks('beforeCreate', options)
-    
-    return false if @hasErrors()
     
     a = @attrs()
     a['__id'] = @__id
@@ -107,23 +108,24 @@ class Model extends ARJS.Module
 
   _update: (options) ->
     da = @_dirtyAttributes()
-    return false if da.length == 0
-
     # lets do some validation!
+    @_setupValidation()
     @_callAllHooks('beforeValidation', options)
     @_validate('update')
     @_callAllHooks('afterValidation', options)
 
-    @_callAllHooks('beforeSave', options)
-    @_callAllHooks('beforeUpdate', options)
-    
     return false if @hasErrors()
 
-    changedHash = {}
-    changedHash[k] = @[k] for k in da
-    q = @_knex().where('__id', '=', @__id).update(changedHash).toString()
-    ARJS.exec(q)
-    @_refresh()
+    @_callAllHooks('beforeSave', options)
+    @_callAllHooks('beforeUpdate', options)
+
+    if not @isSaved()
+      changedHash = {}
+      changedHash[k] = @[k] for k in da
+      q = @_knex().where('__id', '=', @__id).update(changedHash).toString()
+      ARJS.exec(q)
+      @_refresh()
+
     @_callAllHooks('afterUpdate', options)
     @_callAllHooks('afterSave', options)
     true

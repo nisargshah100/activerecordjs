@@ -195,9 +195,10 @@ ARJS.Validation = {
       @_errors[name] ||= []
       @_errors[name].push(error)
 
-    _validate: (onMethod) ->
+    _setupValidation: ->
       @_errors = {}
 
+    _validate: (onMethod) ->
       rules = @.constructor._validationRules
       attrs = @attrs()
 
